@@ -1,0 +1,1 @@
+/home/parallels/ros2_tas_project/src/tas2-simulator/launch/gazebo_bringup_cafe.py

@@ -1,0 +1,141 @@
+[0.037s] Invoking command in '/home/parallels/ros2_tas_project/build/tas2-simulator': CMAKE_PREFIX_PATH=/opt/ros/humble COMP_WORDBREAKS=
+"'><=;|&( /usr/bin/cmake /home/parallels/ros2_tas_project/src/tas2-simulator -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/parallels/ros2_tas_project/install/tas2-simulator
+[0.328s] -- The C compiler identification is GNU 11.3.0
+[0.509s] -- The CXX compiler identification is GNU 11.3.0
+[0.536s] -- Detecting C compiler ABI info
+[0.649s] -- Detecting C compiler ABI info - done
+[0.656s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.657s] -- Detecting C compile features
+[0.660s] -- Detecting C compile features - done
+[0.666s] -- Detecting CXX compiler ABI info
+[0.770s] -- Detecting CXX compiler ABI info - done
+[0.776s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.776s] -- Detecting CXX compile features
+[0.777s] -- Detecting CXX compile features - done
+[0.788s] -- Found ament_cmake: 1.3.2 (/opt/ros/humble/share/ament_cmake/cmake)
+[0.978s] -- Found Python3: /usr/bin/python3.10 (found version "3.10.6") found components: Interpreter 
+[1.084s] -- Override CMake install command with custom implementation using symlinks instead of copying resources
+[1.161s] -- Found ament_lint_auto: 0.12.4 (/opt/ros/humble/share/ament_lint_auto/cmake)
+[1.290s] -- Added test 'flake8' to check Python code syntax and style conventions
+[1.292s] -- Added test 'lint_cmake' to check CMake code style
+[1.294s] -- Added test 'pep257' to check Python code against some of the docstring style conventions in PEP 257
+[1.303s] -- Added test 'xmllint' to check XML markup files
+[1.307s] -- Configuring done
+[1.311s] -- Generating done
+[1.312s] -- Build files have been written to: /home/parallels/ros2_tas_project/build/tas2-simulator
+[1.317s] Invoked command in '/home/parallels/ros2_tas_project/build/tas2-simulator' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble COMP_WORDBREAKS=
+"'><=;|&( /usr/bin/cmake /home/parallels/ros2_tas_project/src/tas2-simulator -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/parallels/ros2_tas_project/install/tas2-simulator
+[1.320s] Invoking command in '/home/parallels/ros2_tas_project/build/tas2-simulator': CMAKE_PREFIX_PATH=/opt/ros/humble COMP_WORDBREAKS=
+"'><=;|&( /usr/bin/cmake --build /home/parallels/ros2_tas_project/build/tas2-simulator -- -j4 -l4
+[1.367s] Invoked command in '/home/parallels/ros2_tas_project/build/tas2-simulator' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble COMP_WORDBREAKS=
+"'><=;|&( /usr/bin/cmake --build /home/parallels/ros2_tas_project/build/tas2-simulator -- -j4 -l4
+[1.407s] Invoking command in '/home/parallels/ros2_tas_project/build/tas2-simulator': CMAKE_PREFIX_PATH=/opt/ros/humble COMP_WORDBREAKS=
+"'><=;|&( /usr/bin/cmake --install /home/parallels/ros2_tas_project/build/tas2-simulator
+[1.415s] -- Install configuration: ""
+[1.415s] -- Execute custom install script
+[1.416s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/config/ekf.yaml
+[1.428s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/config/navigation.yaml
+[1.438s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/launch/gazeboBringupTAScar.py
+[1.449s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/launch/navigationTAScar.py
+[1.459s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/launch/visualizeTAScar.py
+[1.469s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/maps/LSR_N5_TASlab.pgm
+[1.478s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/maps/LSR_N5_TASlab.yaml
+[1.487s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/maps/LSR_N5_basement.pgm
+[1.497s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/maps/LSR_N5_basement.yaml
+[1.508s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/basement/model.config
+[1.518s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/basement/model.sdf
+[1.530s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/box/meshes/box.dae
+[1.541s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/box/meshes/crate01.jpg
+[1.551s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/box/model.config
+[1.561s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/box/model.sdf
+[1.571s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/cabinet/meshes/cabinet.dae
+[1.581s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/cabinet/model.config
+[1.591s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/cabinet/model.sdf
+[1.601s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/chair/meshes/M_Office_Chair_baseColor.png
+[1.611s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/chair/meshes/chair.dae
+[1.623s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/chair/model.config
+[1.634s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/chair/model.sdf
+[1.644s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/door/meshes/door.dae
+[1.654s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/door/model.config
+[1.665s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/door/model.sdf
+[1.675s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/doorxl/meshes/doorxl.dae
+[1.685s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/doorxl/model.config
+[1.695s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/doorxl/model.sdf
+[1.705s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/keyboard/meshes/Keyboard_1001_AlbedoTransparency.png
+[1.716s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/keyboard/meshes/keyboard.dae
+[1.728s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/keyboard/model.config
+[1.740s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/keyboard/model.sdf
+[1.751s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/monitor/meshes/Monitor_01_Complete_Monitor_01_BaseColor.jpg
+[1.764s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/monitor/meshes/Monitor_01_Complete_Monitor_01_BaseColor.jpg.001.jpg
+[1.775s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/monitor/meshes/Monitor_01_Complete_Monitor_01_Decals_Base.jpg
+[1.786s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/monitor/meshes/Monitor_01_Complete_Monitor_01_Decals_Base.jpg.001.jpg
+[1.795s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/monitor/meshes/monitor.dae
+[1.805s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/monitor/model.config
+[1.815s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/monitor/model.sdf
+[1.827s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/my_ground_plane/materials/scripts/my_ground_plane.material
+[1.838s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/my_ground_plane/materials/textures/floor.jpg
+[1.848s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/my_ground_plane/model.config
+[1.859s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/my_ground_plane/model.sdf
+[1.869s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/office_table/meshes/Untitled.png
+[1.878s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/office_table/meshes/office_table.dae
+[1.888s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/office_table/model.config
+[1.897s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/office_table/model.sdf
+[1.907s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/pc/meshes/Material.001_baseColor.png
+[1.917s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/pc/meshes/pc.dae
+[1.927s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/pc/model.config
+[1.938s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/pc/model.sdf
+[1.950s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/person_walking/materials/textures/eyebrow001-unmodified.png
+[1.960s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/person_walking/materials/textures/eyebrow001.png
+[1.971s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/person_walking/materials/textures/green_eye.png
+[1.981s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/person_walking/materials/textures/jeans01_normals.png
+[1.990s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/person_walking/materials/textures/jeans_basic_diffuse.png
+[2.001s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/person_walking/materials/textures/male02_diffuse_black-unmodified.png
+[2.010s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/person_walking/materials/textures/male02_diffuse_black.png
+[2.023s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/person_walking/materials/textures/teeth.png
+[2.034s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/person_walking/materials/textures/tshirt02_normals.png
+[2.044s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/person_walking/materials/textures/tshirt02_texture.png
+[2.054s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/person_walking/materials/textures/young_lightskinned_male_diffuse.png
+[2.065s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/person_walking/meshes/walking.dae
+[2.074s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/person_walking/model.config
+[2.084s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/person_walking/model.sdf
+[2.093s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/stairs/meshes/stairs.dae
+[2.103s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/stairs/model.config
+[2.113s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/stairs/model.sdf
+[2.125s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/workbench/meshes/WorkBench_PBR_SG_baseColor.png.001.png
+[2.136s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/workbench/meshes/workbench.dae
+[2.145s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/workbench/model.config
+[2.156s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/gazeboModels/workbench/model.sdf
+[2.166s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/materials/blue_tex.png
+[2.175s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/materials/tas_blue.material
+[2.185s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/meshes/hokuyo.dae
+[2.195s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/meshes/model_base_reduced.dae
+[2.204s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/meshes/model_wheel_left.dae
+[2.214s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/meshes/model_wheel_left_collision.dae
+[2.225s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/meshes/model_wheel_right.dae
+[2.236s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/meshes/model_wheel_right_collision.dae
+[2.247s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/urdf/tas_car.config
+[2.259s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/urdf/tas_car.sdf
+[2.271s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/urdf/tas_car.urdf
+[2.280s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/urdf/tas_car_v2.sdf
+[2.291s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/urdf/tas_car_v2.urdf
+[2.305s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/worlds/basement.world
+[2.315s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/models/worlds/basement_ext.world
+[2.326s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/rviz/navigationTAScar.rviz
+[2.337s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/rviz/visualizeTAScar.rviz
+[2.347s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/ament_index/resource_index/package_run_dependencies/tas2-simulator
+[2.358s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/ament_index/resource_index/parent_prefix_path/tas2-simulator
+[2.368s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/environment/ament_prefix_path.sh
+[2.378s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/environment/ament_prefix_path.dsv
+[2.388s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/environment/path.sh
+[2.397s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/environment/path.dsv
+[2.407s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/local_setup.bash
+[2.417s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/local_setup.sh
+[2.429s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/local_setup.zsh
+[2.440s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/local_setup.dsv
+[2.451s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/package.dsv
+[2.461s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/ament_index/resource_index/packages/tas2-simulator
+[2.471s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/cmake/tas2-simulatorConfig.cmake
+[2.481s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/cmake/tas2-simulatorConfig-version.cmake
+[2.490s] -- Symlinking: /home/parallels/ros2_tas_project/install/tas2-simulator/share/tas2-simulator/package.xml
+[2.504s] Invoked command in '/home/parallels/ros2_tas_project/build/tas2-simulator' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble COMP_WORDBREAKS=
+"'><=;|&( /usr/bin/cmake --install /home/parallels/ros2_tas_project/build/tas2-simulator

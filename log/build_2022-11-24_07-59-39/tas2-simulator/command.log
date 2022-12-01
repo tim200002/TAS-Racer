@@ -1,0 +1,12 @@
+Invoking command in '/home/parallels/ros2_tas_project/build/tas2-simulator': CMAKE_PREFIX_PATH=/opt/ros/humble COMP_WORDBREAKS=
+"'><=;|&( /usr/bin/cmake /home/parallels/ros2_tas_project/src/tas2-simulator -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/parallels/ros2_tas_project/install/tas2-simulator
+Invoked command in '/home/parallels/ros2_tas_project/build/tas2-simulator' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble COMP_WORDBREAKS=
+"'><=;|&( /usr/bin/cmake /home/parallels/ros2_tas_project/src/tas2-simulator -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/parallels/ros2_tas_project/install/tas2-simulator
+Invoking command in '/home/parallels/ros2_tas_project/build/tas2-simulator': CMAKE_PREFIX_PATH=/opt/ros/humble COMP_WORDBREAKS=
+"'><=;|&( /usr/bin/cmake --build /home/parallels/ros2_tas_project/build/tas2-simulator -- -j4 -l4
+Invoked command in '/home/parallels/ros2_tas_project/build/tas2-simulator' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble COMP_WORDBREAKS=
+"'><=;|&( /usr/bin/cmake --build /home/parallels/ros2_tas_project/build/tas2-simulator -- -j4 -l4
+Invoking command in '/home/parallels/ros2_tas_project/build/tas2-simulator': CMAKE_PREFIX_PATH=/opt/ros/humble COMP_WORDBREAKS=
+"'><=;|&( /usr/bin/cmake --install /home/parallels/ros2_tas_project/build/tas2-simulator
+Invoked command in '/home/parallels/ros2_tas_project/build/tas2-simulator' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble COMP_WORDBREAKS=
+"'><=;|&( /usr/bin/cmake --install /home/parallels/ros2_tas_project/build/tas2-simulator
