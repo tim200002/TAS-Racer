@@ -1,8 +1,0 @@
-source;share/tas2-simulator/hook/cmake_prefix_path.ps1
-source;share/tas2-simulator/hook/cmake_prefix_path.dsv
-source;share/tas2-simulator/hook/cmake_prefix_path.sh
-source;share/tas2-simulator/local_setup.bash
-source;share/tas2-simulator/local_setup.dsv
-source;share/tas2-simulator/local_setup.ps1
-source;share/tas2-simulator/local_setup.sh
-source;share/tas2-simulator/local_setup.zsh
