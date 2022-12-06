@@ -14,19 +14,21 @@ from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from launch.conditions import IfCondition
+from launch.substitutions import FindExecutable
+from launch.actions import ExecuteProcess
+import time
+from launch.actions import TimerAction
+
 
 
 def generate_launch_description():
-
-  subprocess.run(['killall', 'gzserver'])
-  subprocess.run(['killall', 'gzclient'])
-
  # Constants for paths to different files and folders
   package_name = 'tas2-simulator'
   robot_name_in_model = 'tas_car'
   gazebo_models_path = 'models/gazeboModels'
   gazebo_world_file_path = 'models/worlds/basement.world'
-  pkg_gazebo_ros = FindPackageShare(package='gazebo_ros').find('gazebo_ros')   
+  pkg_gazebo_ros = FindPackageShare(package='gazebo_ros').find('gazebo_ros')  
+  pkg_nav2 = FindPackageShare(package='nav2_bringup').find('nav2_bringup')    
   pkg_share = FindPackageShare(package=package_name).find(package_name)
   urdf_file_path = os.path.join(pkg_share, 'models/urdf/tas_car.urdf')
   sdf_file_path = os.path.join(pkg_share, 'models/urdf/tas_car.sdf')
@@ -34,6 +36,8 @@ def generate_launch_description():
   gazebo_world_path = os.path.join(pkg_share, gazebo_world_file_path)
   gazebo_models_path = os.path.join(pkg_share, gazebo_models_path)
   os.environ["GAZEBO_MODEL_PATH"] = gazebo_models_path
+  nav2_config_file_path = os.path.join(pkg_share, 'config/navigation.yaml')
+  map_config_file_path = os.path.join(pkg_share, 'maps/LSR_N5_basement.yaml')
 
   # Pose where we want to spawn the robot in Gazebo
   spawn_at_x = '-6.0'
@@ -42,23 +46,11 @@ def generate_launch_description():
   spawn_at_yaw = '1.57'
 
   # Launch configuration variables specific to simulation
-  headless = LaunchConfiguration('headless')
   use_sim_time = LaunchConfiguration('use_sim_time')
-  world = LaunchConfiguration('world')
   urdf = open(urdf_file_path).read()
 
 
   # Declare the launch arguments
-  declare_simulator_cmd = DeclareLaunchArgument(
-    name='headless',
-    default_value='False',
-    description='Whether to execute gzclient')
-
-  declare_rviz_config_file_cmd = DeclareLaunchArgument(
-    name='rviz_config_file',
-    default_value=rviz_config_file_path,
-    description='Full path to the RVIZ config file to use')
-
   declare_urdf_model_path_cmd = DeclareLaunchArgument(
     name='urdf_model', 
     default_value=urdf_file_path, 
@@ -92,26 +84,20 @@ def generate_launch_description():
             ]
         )
 
-  # Start Gazebo 
-  # start_gazebo_cmd = IncludeLaunchDescription(
-  #     PythonLaunchDescriptionSource(os.path.join(pkg_gazebo_ros, 'launch', 'gazebo.launch.py')),
-  #     launch_arguments={
-  #     'use_sim_time': use_sim_time,
-  #     'world': world
-  #   }.items())
-
-  start_gazebo_server_cmd = IncludeLaunchDescription(
-    PythonLaunchDescriptionSource(os.path.join(pkg_gazebo_ros, 'launch', 'gzserver.launch.py')),
-    launch_arguments={
-       'use_sim_time': use_sim_time,
-       'world': world
-     }.items()
+  # Delete Robot to spawn new
+#   delete_entity_cmd= Node(
+#     package='gazebo_ros', 
+#     executable='delete_entity.py',
+#     name='delete_entity',
+#     arguments=['entity', robot_name_in_model]
+#   )
+  delete_entity_cmd = ExecuteProcess(
+    cmd=[[FindExecutable(name='ros2'),
+        " service call ",
+        "/delete_entity gazebo_msgs/DeleteEntity ",
+         '"{name: ' + robot_name_in_model + '}"']],
+         shell=True
   )
-
-  # Start Gazebo client    
-  start_gazebo_client_cmd = IncludeLaunchDescription(
-    PythonLaunchDescriptionSource(os.path.join(pkg_gazebo_ros, 'launch', 'gzclient.launch.py')),
-    condition=IfCondition(PythonExpression(['not ', headless])))
 
   # Spawn the robot in Gazebo
   spawn_entity_cmd = Node(
@@ -136,21 +122,20 @@ def generate_launch_description():
       #  remappings=[("/cmd_vel", "cmd_vel"), ("/odom", "odom")]
 )
 
-  # Launch RViz
-  start_rviz_cmd = Node(
-    package='rviz2',
-    executable='rviz2',
-    name='rviz2',
-    output='screen',
-    arguments=['-d', rviz_config_file_path],
-    parameters=[{'use_sim_time': use_sim_time}])
+  start_nav2_pkg = IncludeLaunchDescription(
+      PythonLaunchDescriptionSource(os.path.join(pkg_nav2, 'launch', 'bringup_launch.py')),
+      launch_arguments={
+        'use_sim_time': use_sim_time,
+        'params_file': nav2_config_file_path,
+        'map': map_config_file_path,
+        'rviz_config_file': rviz_config_file_path
+      }.items())
+
   
   # Create the launch description and populate
   ld = LaunchDescription()
 
   # Declare the launch options
-  ld.add_action(declare_simulator_cmd)
-  ld.add_action(declare_rviz_config_file_cmd)
   ld.add_action(declare_urdf_model_path_cmd)
   ld.add_action(declare_use_robot_state_pub_cmd)  
   ld.add_action(declare_use_sim_time_cmd)
@@ -159,10 +144,11 @@ def generate_launch_description():
 
     # launch the nodes
   # ld.add_action(start_gazebo_cmd)
-  ld.add_action(start_gazebo_server_cmd)
-  ld.add_action(start_gazebo_client_cmd)
+  # ld.add_action(TimerAction(period=12.0, actions=[delete_entity_cmd, spawn_entity_cmd]))
+  # ld.add_action(delete_entity_cmd)
   ld.add_action(spawn_entity_cmd)
   ld.add_action(robot_EKF_localization_node)
   ld.add_action(start_robot_state_publisher_cmd)
-  ld.add_action(start_rviz_cmd)
+  ld.add_action(start_nav2_pkg)
+
   return ld
