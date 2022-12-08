@@ -23,7 +23,7 @@ def generate_launch_description():
  # Constants for paths to different files and folders
   package_name = 'tas2-simulator'
   gazebo_models_path = 'models/gazeboModels'
-  gazebo_world_file_path = 'models/worlds/simple.world'
+  gazebo_world_file_path = 'models/worlds/basement.world'
   pkg_gazebo_ros = FindPackageShare(package='gazebo_ros').find('gazebo_ros')   
   pkg_share = FindPackageShare(package=package_name).find(package_name)
   rviz_config_file_path = os.path.join(pkg_share, 'rviz/navigationTAScar.rviz')
