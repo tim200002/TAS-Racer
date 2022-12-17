@@ -29,8 +29,8 @@ def generate_launch_description():
     os.environ["GAZEBO_MODEL_PATH"] = gazebo_models_path
 
     # Pose where we want to spawn the robot in Gazebo
-    spawn_at_x = '10'
-    spawn_at_y = '0'
+    spawn_at_x = '-9.375'
+    spawn_at_y = '13.175'
     spawn_at_z = '0.0'
     spawn_at_yaw = '-1.57'
 

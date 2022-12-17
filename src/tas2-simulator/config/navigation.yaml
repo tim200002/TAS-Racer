@@ -33,7 +33,7 @@ amcl:
     beam_skip_threshold: 0.3
     do_beamskip: false
     global_frame_id: "map"
-    initial_pose: [10.0, 0.0, 0.0, -1.57]
+    initial_pose: [-9.375, 13.175, 0.0, -1.57]
     lambda_short: 0.1
     laser_likelihood_max_dist: 2.0
     laser_max_range: 10.0
