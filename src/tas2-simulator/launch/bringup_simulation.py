@@ -13,6 +13,7 @@ from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from launch.conditions import IfCondition
+import launch_ros
 
 
 def generate_launch_description():
@@ -75,13 +76,15 @@ def generate_launch_description():
         condition=IfCondition(PythonExpression(['not ', headless])))
 
     # Launch RViz
-    start_rviz_cmd = Node(
+    start_rviz_cmd = launch_ros.actions.Node(
         package='rviz2',
         executable='rviz2',
         name='rviz2',
         output='screen',
         arguments=['-d', rviz_config_file_path],
-        parameters=[{'use_sim_time': use_sim_time}])
+        parameters=[{'use_sim_time': use_sim_time}],
+        condition=IfCondition(PythonExpression(['not ', headless]))
+    )
 
     # Create the launch description and populate
     ld = LaunchDescription()
