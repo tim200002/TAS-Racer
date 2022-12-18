@@ -1,0 +1,6 @@
+# input
+geometry_msgs/PoseStamped start_pose
+geometry_msgs/PoseStamped goal_pose
+---
+# output
+geometry_msgs/PoseStamped[] path_poses
