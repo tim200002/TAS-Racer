@@ -13,7 +13,7 @@ def main(args=None):
 
     # start path planner service
     print("start planner service")
-    path_planner_service = FindPathService(simulate_with_loaded_costmap=True)
+    path_planner_service = FindPathService(simulate_with_loaded_costmap=False)
     rclpy.spin(path_planner_service)
 
     #! Cleanup

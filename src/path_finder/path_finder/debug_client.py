@@ -25,18 +25,18 @@ def main(args=None):
     rclpy.init(args=args)
 
     initial_pose = PoseStamped()
-    initial_pose.pose.position.x = -3.0
-    initial_pose.pose.position.y = 5.0
+    initial_pose.pose.position.x = -9.375
+    initial_pose.pose.position.y = 13.175
 
     goal_pose = PoseStamped()
-    goal_pose.pose.position.x = 2.0
-    goal_pose.pose.position.y = 7.0
+    goal_pose.pose.position.x = -14.95
+    goal_pose.pose.position.y = -16.95
 
     minimal_client = PathFinderDebugClient()
     response = minimal_client.send_request(initial_pose, goal_pose)
-    # minimal_client.get_logger().info(
-    #     'Result of add_two_ints: for %d + %d = %d' %
-    #     (int(sys.argv[1]), int(sys.argv[2]), response.sum))
+    path = response.path_poses
+    minimal_client.get_logger().info(
+        f'Result of find_path is a path of length {len(path)}')
 
     minimal_client.destroy_node()
     rclpy.shutdown()
