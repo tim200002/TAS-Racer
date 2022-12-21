@@ -50,6 +50,7 @@ namespace minimum_curvature_planner
         const geometry_msgs::msg::PoseStamped &start,
         const geometry_msgs::msg::PoseStamped &goal)
     {
+
         using namespace std::chrono_literals;
         nav_msgs::msg::Path global_path;
 
