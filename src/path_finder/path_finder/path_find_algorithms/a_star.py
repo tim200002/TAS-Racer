@@ -3,6 +3,12 @@ import heapq
 
 
 def a_star(start, goal, classified_grid: np.ndarray):
+    """
+    Finds shortest path between two points using a-star
+
+    classified_grid must be of such form that all valid points have value 1 and invalid points have a different value
+    If we do not check fir unrechable points before there is the danger that algorithm cannot find point.
+    """
     start = (start[1], start[0])
     goal = (goal[1], goal[0])
 

@@ -4,7 +4,7 @@ map_load_time: !!python/object/new:builtin_interfaces.msg._time.Time
   - null
   - _nanosec: 0
     _sec: 0
-origin_x: -19.25000000037253
-origin_y: -27.850000000372535
+origin_x: -19.100000000372532
+origin_y: -28.150000000372536
 resolution: 0.05000000074505806
 width: 1500

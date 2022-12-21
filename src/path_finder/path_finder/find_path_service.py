@@ -72,23 +72,25 @@ class FindPathService(Node):
 
         # binary split down occupancy grid only allow regions, where car would fir through in any pose
         # ToDo might improve later
-        self.get_logger().info('Start Classifying points')
-        occupancy_grid_np_binarized = (
-            occupancy_grid_np > LETHAL_THRESHOLD) * 1
+        # self.get_logger().info('Start Classifying points')
+        # occupancy_grid_np_binarized = (
+        #     occupancy_grid_np > LETHAL_THRESHOLD) * 1
 
-        classified_grid = classify_points(
-            start_point_np, occupancy_grid_np_binarized)
-        self.get_logger().info('Finished Classifying points')
+        # classified_grid = classify_points(
+        #     start_point_np, occupancy_grid_np_binarized)
+        # self.get_logger().info('Finished Classifying points')
 
-        # show current position and classified grid
-        plt.matshow(classified_grid)
-        plt.scatter([start_point_np[1], goal_point_np[1]], [
-                    start_point_np[0], goal_point_np[0]], c="red")
-        plt.show()
+        # # show current position and classified grid
+        # plt.matshow(classified_grid)
+        # plt.scatter([start_point_np[1], goal_point_np[1]], [
+        #             start_point_np[0], goal_point_np[0]], c="red")
+        # plt.show()
 
         self.get_logger().info('Start A-star to calculate shortest path')
-        path = a_star(start_point_np, goal_point_np, classified_grid)
-        plt.matshow(classified_grid)
+        occupancy_grid_np_binarized = (
+                occupancy_grid_np <LETHAL_THRESHOLD) * 1
+        path = a_star(start_point_np, goal_point_np, occupancy_grid_np_binarized)
+        plt.matshow(occupancy_grid_np_binarized)
         plt.scatter([p[1] for p in path], [p[0] for p in path], s=0.5, c="red")
         plt.show()
         self.get_logger().info('Finished A-star to calculate shortest path')
