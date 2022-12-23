@@ -32,8 +32,6 @@ def generate_launch_description():
     gazebo_models_path = os.path.join(pkg_share, gazebo_models_path)
     os.environ["GAZEBO_MODEL_PATH"] = gazebo_models_path
 
-    print(gazebo_world_path)
-
     # Launch configuration variables specific to simulation
     headless = LaunchConfiguration('headless')
     use_sim_time = LaunchConfiguration('use_sim_time')
@@ -43,7 +41,7 @@ def generate_launch_description():
     declare_simulator_cmd = DeclareLaunchArgument(
         name='headless',
         default_value='False',
-        description='Whether to execute gzclient')
+        description='Whether to execute gzclient and rviz')
 
     declare_rviz_config_file_cmd = DeclareLaunchArgument(
         name='rviz_config_file',

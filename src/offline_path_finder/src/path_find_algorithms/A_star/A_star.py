@@ -3,88 +3,67 @@ import math
 
 from models.point import Point
 from .node import Node
+import heapq
 
 
 class AStar:
     @classmethod
-    def find_path(cls, start: Point, goal: Point, grid: np.ndarray):
+    def find_path(cls, start: Point, goal: Point, classified_grid: np.ndarray) -> list[Point]:
         """
         Finds shortest path between two points using a-star
 
         classified_grid must be of such form that all valid points have value 1 and invalid points have a different value
         If we do not check fir unrechable points before there is the danger that algorithm cannot find point.
         """
-
-        assert grid[start.y, start.x] == 1 and grid[goal.y, goal.x] == 1
+        assert classified_grid[start.y, start.x] == 1 and classified_grid[goal.y, goal.x] == 1
 
         # allow moves in all directions
         neighbors = [Point(0, 1), Point(0, -1), Point(1, 0), Point(-1, 0),
-                    Point(1, 1), Point(1, -1), Point(-1, 1), Point(-1, -1)]
-        
-        current: Node = None
-        open_set = []
-        closed_set = []
+        Point(1, 1), Point(1, -1), Point(-1, 1), Point(-1, -1)]
 
-        open_set.append(Node(start))
+        open_heap = []
+        closed_set = set()
 
-        while open_set:
-            current = open_set[0]
+        came_from = {}
 
-            # see if there is not a smaller node
-            optimal_index = 0
-            for i, node in enumerate(open_set):
-                if node.get_score() < current.get_score():
-                    optimal_index = i
-                    current = node
-            
-            print(current.get_score())
+        # add initial point to open list
+        gscore = {start: 0}
+        fscore = {start: cls._heuristic(start, goal)}
+
+        heapq.heappush(open_heap, Node(start, fscore[start]))
+
+        while open_heap:
+            current_point = heapq.heappop(open_heap).coordinate
 
             # reached goal -> backwards calculate path
-            if current.coordinate == goal:
-                return cls._backsolve_path(current)
+            if current_point == goal:
+                print("backsolve")
+                return cls._backsolve_path(current_point, came_from)
 
-            del open_set[optimal_index]
-            
-            # Add element to closed list and continue path finding
-            closed_set.append(current)
-            # print(f"found best way to point {current.coordinate}")
+            # Continue path finding
+            closed_set.add(current_point)
 
             # go over all neighbors
             for direction in neighbors:
-                new_point = Node(current.coordinate + direction, current)
+                neighbor = current_point + direction
 
-                # check if valid movement
-                if not cls._check_new_point(new_point.coordinate, grid):
+                tentative_g_score = gscore[current_point] + math.sqrt(direction.x**2 + direction.y**2)
+
+                if not cls._check_new_point(neighbor, classified_grid):
                     continue
 
-                # check if value in closed list, if so continue
-                was_found = False
-                for node in closed_set:
-                    if node.coordinate == new_point.coordinate:
-                        was_found = True
-                        break
-                if was_found:
+                if neighbor in closed_set: 
                     continue
 
+                if tentative_g_score < gscore.get(neighbor, float('inf')):
+                    came_from[neighbor] = current_point
+                    gscore[neighbor] = tentative_g_score
+                    fscore[neighbor] = tentative_g_score + \
+                        cls._heuristic(neighbor, goal)
 
-                g = current.G + math.sqrt(direction.x**2 + direction.y**2)
-                h = cls._heuristic(new_point.coordinate, goal)
-
-                new_point.G = g
-                new_point.H = h
-
-                add_node = True
-                for node in open_set:
-                    if node.coordinate == new_point.coordinate:
-                        # there is a new better way -> update node
-                        if new_point.G < node.G:
-                            node.G = new_point.G
-                            node.parent = new_point.parent
-                        add_node = False
-                        break
-                    
-                if add_node:
-                    open_set.append(new_point)
+                    heapq.heappush(open_heap, Node(neighbor, fscore[neighbor]))
+        
+        raise ValueError("No path exists between pints")
 
 
 
@@ -93,12 +72,13 @@ class AStar:
         return np.sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2)
 
     @classmethod
-    def _backsolve_path(cls, end: Node):
+    def _backsolve_path(cls, end: Node, came_from):
         current = end
         path = []
-        while current != None:
-            path.append(current.coordinate)
-            current = current.parent
+        while current in came_from:
+            path.append(current)
+            current = came_from[current]
+        return path
 
     @classmethod
     def _check_new_point(cls, point: Point, classified_grid: np.ndarray):

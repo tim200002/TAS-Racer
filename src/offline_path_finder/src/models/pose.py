@@ -9,4 +9,4 @@ class Pose:
         return self.coordinate == other.coordinate and self.angle == other.angle
 
     def __str__(self):
-        return f"({self.x}, {self.y}, {self.angle})"
+        return f"({self.coordinate.x}, {self.coordinate.y}, {self.angle})"

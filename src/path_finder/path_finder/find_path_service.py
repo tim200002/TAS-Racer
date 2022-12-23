@@ -88,8 +88,9 @@ class FindPathService(Node):
 
         self.get_logger().info('Start A-star to calculate shortest path')
         occupancy_grid_np_binarized = (
-                occupancy_grid_np <LETHAL_THRESHOLD) * 1
-        path = a_star(start_point_np, goal_point_np, occupancy_grid_np_binarized)
+            occupancy_grid_np < LETHAL_THRESHOLD) * 1
+        path = a_star(start_point_np, goal_point_np,
+                      occupancy_grid_np_binarized)
         plt.matshow(occupancy_grid_np_binarized)
         plt.scatter([p[1] for p in path], [p[0] for p in path], s=0.5, c="red")
         plt.show()
@@ -130,14 +131,11 @@ class FindPathService(Node):
         numpy_occupancy_grid = occupancy_grid_to_numpy(msg)
         np.save('/home/parallels/Desktop/Parallels_Shared/Home/ros2_tas_project/to_be_saved/occupancy_grid.npy',
                 numpy_occupancy_grid.data)
-        msg_info_yaml = {
-            'resolution': msg.info.resolution,
-            'width': msg.info.width,
-            'height': msg.info.height,
-            'map_load_time': msg.info.map_load_time,
-            'origin_x': msg.info.origin.position.x,
-            'origin_y': msg.info.origin.position.y
+        data = {
+            "origin_x": msg.info.origin.position.x,
+            "origin_y": msg.info.origin.position.y,
+            "resolution": msg.info.resolution
         }
 
-        with open('/home/parallels/Desktop/Parallels_Shared/Home/ros2_tas_project/to_be_saved/occupancy_grid_info.yaml', 'w') as file:
-            yaml.dump(msg_info_yaml, file)
+        with open('/home/parallels/Desktop/Parallels_Shared/Home/ros2_tas_project/to_be_saved/occupancy_grid_info.yaml', 'w') as outfile:
+            yaml.dump(data, outfile, default_flow_style=False)

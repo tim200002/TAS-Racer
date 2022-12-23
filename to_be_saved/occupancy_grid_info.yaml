@@ -1,10 +1,3 @@
-height: 1500
-map_load_time: !!python/object/new:builtin_interfaces.msg._time.Time
-  state: !!python/tuple
-  - null
-  - _nanosec: 0
-    _sec: 0
-origin_x: -19.100000000372532
-origin_y: -28.150000000372536
+origin_x: -24.950000000372533
+origin_y: -24.950000000372533
 resolution: 0.05000000074505806
-width: 1500
