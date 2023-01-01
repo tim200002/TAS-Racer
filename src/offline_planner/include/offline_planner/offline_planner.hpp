@@ -1,7 +1,4 @@
-
-// #ifndef NAV2_STRAIGHTLINE_PLANNER__STRAIGHT_LINE_PLANNER_HPP_
-// #define NAV2_STRAIGHTLINE_PLANNER__STRAIGHT_LINE_PLANNER_HPP_
-
+#pragma once
 #include <string>
 #include <memory>
 
@@ -60,6 +57,8 @@ namespace offline_planner
 
         // The file where one can find the precomputed trajectories
         std::string trajectory_file;
+
+        bool is_point_nearby(Point point, std::vector<offline_planner::Pose>& trajectory, std::vector<Pose>::iterator& first_occurence);
     };
 
 } // namespace nav2_straightline_planner

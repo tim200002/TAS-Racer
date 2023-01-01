@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include "geometry_msgs/msg/point.hpp"
 #include <cmath>
@@ -31,6 +32,7 @@ namespace offline_planner
         {
             return Point(x - rhs.x, y - rhs.y);
         }
+
 
         geometry_msgs::msg::Point toRos2Point()
         {

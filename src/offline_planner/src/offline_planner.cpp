@@ -118,21 +118,11 @@ namespace offline_planner
         //     return global_path;
         // }
 
+        // check start
         Pose start_pose = Pose(start.pose);
-        const int thresh = 1;
-        
-        // find first point such that distance to car below some threshold
-        std::vector<Pose>::iterator newBegin = trajectory.end();
-        
-        for(auto it =trajectory.begin(); it != trajectory.end(); ++it){
-            Point difference = it->coordinate - start_pose.coordinate;
-            if(difference.norm() <= thresh){
-                newBegin = it;
-                break;
-            }
-        }
-
-        if(newBegin == trajectory.end()){
+        std::vector<Pose>::iterator newBegin;
+        bool start_valid = is_point_nearby(start_pose.coordinate, trajectory, newBegin);
+        if(!start_valid){
              RCLCPP_ERROR(
                 node_->get_logger(), "Invalid start point, too far away from trajectory");
             return global_path;
@@ -143,6 +133,15 @@ namespace offline_planner
             trajectoryFiltered.push_back(*it);
         }
 
+        // check goal
+        Pose goal_pose = Pose(goal.pose);
+        std::vector<Pose>::iterator temp;
+        bool goal_valid = is_point_nearby(goal_pose.coordinate, trajectory, temp);
+        if(!goal_valid){
+             RCLCPP_ERROR(
+                node_->get_logger(), "Invalid goal point, too far away from trajectory");
+            return global_path;
+        }
 
         // convert loaded trajectory to stamped poses
         global_path.poses.clear();
@@ -159,6 +158,24 @@ namespace offline_planner
         }
 
         return global_path;
+    }
+
+    bool OfflinePlanner::is_point_nearby(Point point, std::vector<offline_planner::Pose>& trajectory, std::vector<Pose>::iterator& first_occurence){
+        const int thresh = 1;
+        std::vector<Pose>::iterator occurence = trajectory.end();
+        
+        for(auto it =trajectory.begin(); it != trajectory.end(); ++it){
+            Point difference = it-> coordinate - point;
+            if(difference.norm() <= thresh){
+                occurence = it;
+                break;
+            }
+        }
+        if(occurence == trajectory.end()){
+            return false;
+        }
+        first_occurence = occurence;
+        return true;
     }
 
 } // namespace nav2_straightline_planner

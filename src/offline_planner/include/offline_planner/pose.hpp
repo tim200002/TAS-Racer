@@ -1,5 +1,7 @@
+#pragma once
 #include "geometry_msgs/msg/pose.hpp"
 #include "utils.hpp"
+#include "point.hpp"
 #include "quaternion.hpp"
 #include <sstream>  
 #include <cmath>
