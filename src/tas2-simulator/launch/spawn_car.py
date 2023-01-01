@@ -121,7 +121,7 @@ def generate_launch_description():
     # launch the nodes
     # ld.add_action(delete_entity_cmd)
     ld.add_action(spawn_entity_cmd)
-    ld.add_action(start_robot_state_publisher_cmd)
+    # ld.add_action(start_robot_state_publisher_cmd)
     # ld.add_action(shutdown)
     # ld.add_action(wait_for_delete)
 

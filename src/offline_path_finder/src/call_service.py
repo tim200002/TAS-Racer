@@ -1,4 +1,4 @@
-from gazebo_msgs.srv import SetEntityState, GetEntityState
+from gazebo_msgs.srv import SetEntityState, GetEntityState, DeleteEntity, SpawnEntity, GetModelList
 from std_msgs.msg import Header
 from builtin_interfaces.msg import Time
 from geometry_msgs.msg import Pose, PoseWithCovarianceStamped, PoseWithCovariance, PoseStamped, Twist
@@ -14,6 +14,35 @@ import copy
 # some global config
 CAR_NAME = "tas_car"
 
+def gazebo_get_model_list(node):
+    get_model_listclient = node.create_client(GetModelList, "/get_model_list")
+    while not get_model_listclient.wait_for_service(timeout_sec=1.0):
+            print("Wait for service to become available")
+    get_model_list_request = GetModelList.Request()
+    get_model_list_result = get_model_listclient.call_async(get_model_list_request)
+    rclpy.spin_until_future_complete(node, get_model_list_result)
+    return get_model_list_result.result().model_names
+
+
+def gazebo_delete_entity(node, name):
+    delete_entity_client = node.create_client(DeleteEntity, "/delete_entity")
+    while not delete_entity_client.wait_for_service(timeout_sec=1.0):
+            print("Wait for service to become available")
+    delete_entity_request = DeleteEntity.Request()
+    delete_entity_request.name = name
+    delete_entity_result = delete_entity_client.call_async(delete_entity_request)
+    rclpy.spin_until_future_complete(node, delete_entity_result)
+
+def gazebo_spawn_entity(node, name, xml, initial_pose):
+    spawn_entity_client = node.create_client(SpawnEntity, "/spawn_entity")
+    while not spawn_entity_client.wait_for_service(timeout_sec=1.0):
+            print("Wait for service to become available")
+    spawn_entity_request = SpawnEntity.Request()
+    spawn_entity_request.xml = xml
+    spawn_entity_request.name = name
+    spawn_entity_request.initial_pose = initial_pose
+    spawn_entity_result = spawn_entity_client.call_async(spawn_entity_request)
+    res = rclpy.spin_until_future_complete(node, spawn_entity_result)
 
 
 def gazebo_get_model_state(node, name, reference_frame=""):
@@ -99,61 +128,35 @@ def main():
         lines = f.readlines()
         for line in lines:
             parts = line.split(',')
-            assert len(parts) == 6
+            assert len(parts) == 6, line
             pose = my_Pose(my_Point(float(parts[0]), float(parts[1])), my_Quaternion(float(parts[2]), float(parts[3]), float(parts[4]), float(parts[5])))
             trajectory.append(pose)
 
-    # define start pose
+
     start_pose: my_Pose = trajectory[0]
-    # start_pose_ros = Pose()
-    # start_pose_ros.position.x = start_pose.coordinate.x
-    # start_pose_ros.position.y = start_pose.coordinate.y
-    # start_pose_ros.position.z = 0.0
-    # qx, qy, qz, qw = get_quaternion_from_euler(0,0, start_pose.angle)
-    # start_pose_ros.orientation.x = qx
-    # start_pose_ros.orientation.y = qy
-    # start_pose_ros.orientation.z = qz
-    # start_pose_ros.orientation.w = qw
-
-    # define goal pose
     goal_pose: my_Pose = trajectory[-1]
-    # goal_pose_ros = Pose()
-    # goal_pose_ros.position.x = goal_pose.coordinate.x
-    # goal_pose_ros.position.y = goal_pose.coordinate.y
-    # goal_pose_ros.position.z = 0.0
-    # qx, qy, qz, qw = get_quaternion_from_euler(0,0, goal_pose.angle)
-    # goal_pose_ros.orientation.x = qx
-    # goal_pose_ros.orientation.y = qy
-    # goal_pose_ros.orientation.z = qz
-    # goal_pose_ros.orientation.w = qw
-
 
     rclpy.init()
     node = Node("service")
     nav = BasicNavigator()
 
-    car_state_world = gazebo_get_model_state(node, 'tas_car', reference_frame="")
-    print("car_state_world car")
-    print(car_state_world)
+    name_of_car_in_simulation = "tas_car"
 
-    translational_offset = my_Point(start_pose.coordinate.x - car_state_world.state.pose.position.x, start_pose.coordinate.y - car_state_world.state.pose.position.y)
-
-    target = start_pose.quaternion
-    start = my_Quaternion.from_ros_message(car_state_world.state.pose.orientation)
-    rotational_offset =  my_Quaternion.multiply(target, start.inv())
-    rotational_transformation = my_Quaternion.multiply(rotational_offset, start)
+    # spawn car
+    model_list = gazebo_get_model_list(node)
+    if name_of_car_in_simulation in model_list:
+        print("Model already exist, deleting first")
+        gazebo_delete_entity(node, "tas_car")
     
-    # convert back to car fram
-    rotation_car = my_Quaternion.multiply(rotational_transformation, start.inv())
-
-    translation = my_Pose(translational_offset, rotation_car)
-    print("trasnaltion")
-    print(translation.to_ros_message())
-
-    gazebo_set_model_state(node, 'tas_car', translation.to_ros_message(), reference_frame="base_footprint")
-    python_time.sleep(3)
+    print("Spawning model in gazebo")
+    xml = open("/home/tim/tas2-racer/src/tas2-simulator/models/urdf/tas_car.sdf").read()
+    gazebo_spawn_entity(node, "tas_car",xml , start_pose.to_ros_message())
+    python_time.sleep(4)
+    
+    print("setup RVIZ")
     rviz_set_initial_state(nav,node, start_pose.to_ros_message())
     python_time.sleep(3)
+    print("start navigation")
     start_navigation(nav, node, goal_pose.to_ros_message())
 
 

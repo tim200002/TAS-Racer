@@ -59,7 +59,7 @@ namespace offline_planner
         std::string global_frame_, name_;
 
         // The file where one can find the precomputed trajectories
-        std::vector<Pose> trajectory;
+        std::string trajectory_file;
     };
 
 } // namespace nav2_straightline_planner
