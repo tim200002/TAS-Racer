@@ -3,6 +3,7 @@
    <model name="my_ground_plane">
       <static>true</static>
       <link name="link">
+         <static>true</static>
          <collision name="collision">
             <geometry>
                <plane>
@@ -36,5 +37,9 @@
             </material>
          </visual>
       </link>
+      <gazebo reference="pallet_body">
+         <static>true</static>
+         <turnGravityOff>true</turnGravityOff>
+     </gazebo>
    </model>
 </sdf>

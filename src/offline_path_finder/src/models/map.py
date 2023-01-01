@@ -24,8 +24,8 @@ class Map:
         # The origin is the bottom left point of the map
         # thus we need some trick when calculating grid (index from top left)
         # to world frame
-        x_new = self.origin_wf.x + (point.x) * self.resolution
-        y_new = self.origin_wf.y + (self.grid.shape[1] - point.y) * self.resolution
+        x_new = self.origin_wf.x + point.x * self.resolution
+        y_new = self.origin_wf.y + point.y * self.resolution
 
         return Point(x_new, y_new) 
     
@@ -36,6 +36,6 @@ class Map:
         
         x_new = int((point.x - self.origin_wf.x) / self.resolution)
         # again ugly transformation because I want points in grid to be indexed by top left
-        y_new = self.grid.shape[1] - int((point.y - self.origin_wf.y) / self.resolution)
+        y_new = int((point.y - self.origin_wf.y) / self.resolution)
 
         return Point(x_new, y_new)
