@@ -2,6 +2,7 @@
 #include "utils.hpp"
 #include "quaternion.hpp"
 #include <sstream>  
+#include <cmath>
 
 namespace offline_planner{
     struct Pose
@@ -43,6 +44,8 @@ namespace offline_planner{
             pose.orientation = quaternion.toRosQuaternion();
             return pose;
         }
+
+       
     };
 }
     

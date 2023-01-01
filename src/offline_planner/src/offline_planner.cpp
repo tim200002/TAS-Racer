@@ -118,11 +118,37 @@ namespace offline_planner
         //     return global_path;
         // }
 
+        Pose start_pose = Pose(start.pose);
+        const int thresh = 1;
+        
+        // find first point such that distance to car below some threshold
+        std::vector<Pose>::iterator newBegin = trajectory.end();
+        
+        for(auto it =trajectory.begin(); it != trajectory.end(); ++it){
+            Point difference = it->coordinate - start_pose.coordinate;
+            if(difference.norm() <= thresh){
+                newBegin = it;
+                break;
+            }
+        }
+
+        if(newBegin == trajectory.end()){
+             RCLCPP_ERROR(
+                node_->get_logger(), "Invalid start point, too far away from trajectory");
+            return global_path;
+        }
+
+        std::vector<Pose> trajectoryFiltered;
+        for(auto it = newBegin; it != trajectory.end(); ++it){
+            trajectoryFiltered.push_back(*it);
+        }
+
+
         // convert loaded trajectory to stamped poses
         global_path.poses.clear();
         global_path.header.stamp = node_->now();
         global_path.header.frame_id = global_frame_;
-        for (Pose &pose : trajectory)
+        for (Pose &pose : trajectoryFiltered)
         {
             geometry_msgs::msg::PoseStamped ros_pose;
             ros_pose.pose = pose.toRosPose();
