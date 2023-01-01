@@ -1,7 +1,7 @@
 from gazebo_msgs.srv import SetEntityState, GetEntityState, DeleteEntity, SpawnEntity, GetModelList
 from std_msgs.msg import Header
 from builtin_interfaces.msg import Time
-from geometry_msgs.msg import Pose, PoseWithCovarianceStamped, PoseWithCovariance, PoseStamped, Twist
+from geometry_msgs.msg import PoseStamped
 import time as python_time
 from models.pose import Pose as my_Pose
 from models.point import Point as my_Point
@@ -9,7 +9,7 @@ from models.quaternion import Quaternion as my_Quaternion
 from nav2_simple_commander.robot_navigator import BasicNavigator
 import rclpy
 from rclpy.node import Node
-import copy
+from argparse import ArgumentParser
 
 # some global config
 CAR_NAME = "tas_car"
@@ -121,10 +121,16 @@ def start_navigation(nav, node, goal_pose, global_frame="map"):
 
 
 def main():
+    parser = ArgumentParser()
+    parser.add_argument("-t", "--trajectory-file", default="../../../to_be_saved/trajectory.txt")
+    parser.add_argument("-c", "--car", default="tas_car")
+    args = parser.parse_args()
+
+    car_name = args.car
+
     # load trajectory and extract points
-    trajectory_file_path = "/home/tim/tas2-racer/to_be_saved/trajectory.txt"
     trajectory = []
-    with open(trajectory_file_path, "r") as f:
+    with open(args.trajectory_file, "r") as f:
         lines = f.readlines()
         for line in lines:
             parts = line.split(',')
@@ -140,11 +146,11 @@ def main():
     node = Node("service")
     nav = BasicNavigator()
 
-    name_of_car_in_simulation = "tas_car"
+
 
     # spawn car
     model_list = gazebo_get_model_list(node)
-    if name_of_car_in_simulation in model_list:
+    if car_name in model_list:
         print("Model already exist, deleting first")
         gazebo_delete_entity(node, "tas_car")
     
