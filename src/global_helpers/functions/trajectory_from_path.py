@@ -1,6 +1,6 @@
-from models.point import Point
-from models.pose import Pose
-from models.map import Map
+from ..models.point import Point
+from ..models.pose import Pose
+from ..models.map import Map
 import math
 
 def trajectory_from_path(path: list[Point], ros_map: Map):

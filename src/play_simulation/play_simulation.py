@@ -1,18 +1,18 @@
+import sys, os
+base_path = os.path.split(os.path.join(os.path.dirname(os.path.abspath(__file__))))[0]
+sys.path.append(base_path)
+
 from gazebo_msgs.srv import SetEntityState, GetEntityState, DeleteEntity, SpawnEntity, GetModelList
 from std_msgs.msg import Header
 from builtin_interfaces.msg import Time
 from geometry_msgs.msg import PoseStamped
 import time as python_time
-from models.pose import Pose as my_Pose
-from models.point import Point as my_Point
-from models.quaternion import Quaternion as my_Quaternion
+from global_helpers.models.pose import Pose as my_Pose
+from global_helpers.models.point import Point as my_Point
 from nav2_simple_commander.robot_navigator import BasicNavigator
 import rclpy
 from rclpy.node import Node
 from argparse import ArgumentParser
-
-# some global config
-CAR_NAME = "tas_car"
 
 def gazebo_get_model_list(node):
     get_model_listclient = node.create_client(GetModelList, "/get_model_list")
@@ -122,7 +122,7 @@ def start_navigation(nav, node, goal_pose, global_frame="map"):
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument("-t", "--trajectory-file", default="../../../out/tracks/track_3/trajectory.csv")
+    parser.add_argument("-t", "--trajectory-file", default="../../out/tracks/track_3/trajectory_center.csv")
     parser.add_argument("-c", "--car", default="tas_car")
     args = parser.parse_args()
 
