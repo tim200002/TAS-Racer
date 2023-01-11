@@ -83,40 +83,23 @@ namespace offline_planner
             std::string line;
             while (std::getline(file, line))
             {   
+                // ignore lines that start with #, they are comments
+                if(line[0] == '#'){
+                continue;
+                }
+
                 // each line is of form x,y,yaw
                 std::vector<std::string> results;
                 boost::split(results, line, [](char c)
                              { return c == ','; });
                 // assert(results.size() == 3);
                 Point point = Point(stod(results[0]), stod(results[1]));
-                Quaternion orientation = Quaternion(stod(results[2]), stod(results[3]),stod(results[4]), stod(results[5]));
+                Quaternion orientation = Quaternion::from_euler(0,0, stod(results[2]));
                 Pose pose = Pose(point, orientation);
                 trajectory.push_back(pose);
             }
             file.close();
         }
-
-
-        //! ToDo Implement better Reachability checks
-        // convert start and end pose to my type
-        // 
-
-        // if (start_pose != trajectory[0])
-        // {   
-        //     std::string error_msg = "Invalid start pose, start pose is " + start_pose.toString() + " and first pose of trajectory is " + trajectory[0].toString();
-        //     RCLCPP_ERROR(
-        //         node_->get_logger(), error_msg.c_str());
-        //     return global_path;
-        // }
-        
-        // check if final pose is reachable
-        // Pose goal_pose = Pose(goal.pose);
-        // if (goal_pose != trajectory.back())
-        // {   std::string error_msg = "Invalid goal pose, goal pose is " + goal_pose.toString() + " and goal pose of trajectory is " + trajectory.back().toString();
-        //     RCLCPP_ERROR(
-        //         node_->get_logger(), error_msg.c_str());
-        //     return global_path;
-        // }
 
         // check start
         Pose start_pose = Pose(start.pose);

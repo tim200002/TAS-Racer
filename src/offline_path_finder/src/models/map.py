@@ -1,5 +1,5 @@
 import numpy as np
-from .point import Point
+from .point import Point, RefPoint
 
 class Map:
     def __init__(self, grid: np.ndarray, resolution_: float, origin_wf: Point):
@@ -20,22 +20,32 @@ class Map:
 
     
 
-    def grid_point_to_world_point(self, point: Point) -> Point:
+    def grid_point_to_world_point(self, point: Point|RefPoint) -> Point|RefPoint:
         # The origin is the bottom left point of the map
         # thus we need some trick when calculating grid (index from top left)
         # to world frame
         x_new = self.origin_wf.x + point.x * self.resolution
         y_new = self.origin_wf.y + point.y * self.resolution
 
-        return Point(x_new, y_new) 
+        if type(point) == Point:    
+            return Point(x_new, y_new) 
+        
+        w_tr_right_new = point.w_tr_right * self.resolution
+        w_tr_left_new = point.w_tr_left * self.resolution
+        return RefPoint(x_new, y_new, w_tr_right_new, w_tr_left_new)
     
-    def world_point_to_grid_point(self, point: Point) -> Point:
+    def world_point_to_grid_point(self, point: Point|RefPoint) -> Point|RefPoint:
 
         if (point.x) < self.origin_wf.x or point.y < self.origin_wf.y:
             raise ValueError("Invalid Coordinates")
         
         x_new = int((point.x - self.origin_wf.x) / self.resolution)
-        # again ugly transformation because I want points in grid to be indexed by top left
         y_new = int((point.y - self.origin_wf.y) / self.resolution)
 
-        return Point(x_new, y_new)
+        if type(point) == Point:  
+            return Point(x_new, y_new)
+        w_tr_right_new = point.w_tr_right / self.resolution
+        w_tr_left_new = point.w_tr_left / self.resolution
+        return RefPoint(x_new, y_new, w_tr_right_new, w_tr_left_new)
+    
+        

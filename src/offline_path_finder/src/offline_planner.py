@@ -122,7 +122,7 @@ def start_navigation(nav, node, goal_pose, global_frame="map"):
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument("-t", "--trajectory-file", default="../../../to_be_saved/trajectory.txt")
+    parser.add_argument("-t", "--trajectory-file", default="../../../out/tracks/track_3/trajectory.csv")
     parser.add_argument("-c", "--car", default="tas_car")
     args = parser.parse_args()
 
@@ -133,9 +133,12 @@ def main():
     with open(args.trajectory_file, "r") as f:
         lines = f.readlines()
         for line in lines:
+            # ignore comment lines
+            if line.startswith('#'):
+                continue
             parts = line.split(',')
-            assert len(parts) == 6, line
-            pose = my_Pose(my_Point(float(parts[0]), float(parts[1])), my_Quaternion(float(parts[2]), float(parts[3]), float(parts[4]), float(parts[5])))
+            assert len(parts) == 3, line
+            pose = my_Pose(my_Point(float(parts[0]), float(parts[1])), float(parts[2]))
             trajectory.append(pose)
 
 
