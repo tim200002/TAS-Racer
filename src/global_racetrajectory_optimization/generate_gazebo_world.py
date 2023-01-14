@@ -305,14 +305,15 @@ class WorldGenerator(object):
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument("-p", "--base-path", default="../../../out/tracks/track_3")
+    parser.add_argument("-p", "--base-path", default="../../out/tracks/track_4")
     parser.add_argument("-t", "--track", default="track.jpeg")
     args = parser.parse_args()
 
     base_path = args.base_path
     track_name = args.track
 
-    img = cv2.imread(os.path.join(base_path, track), cv2.IMREAD_GRAYSCALE)
+    img = cv2.imread(os.path.join(base_path, track_name), cv2.IMREAD_GRAYSCALE)
+    assert not (img is None)
     _, img_binarized = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
     img_binarized = (img_binarized == 255) * 1
 

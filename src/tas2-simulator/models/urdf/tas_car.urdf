@@ -24,7 +24,9 @@
   </material>
 
   <!-- ************ TAS2 basefootprint and base ************ -->
+  <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
   <link name="base_footprint"/>
+  
   <link name="base">
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>

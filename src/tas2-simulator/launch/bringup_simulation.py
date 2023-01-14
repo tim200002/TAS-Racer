@@ -31,7 +31,7 @@ def generate_launch_description():
     gazebo_world_path = os.path.join(pkg_share, gazebo_world_file_path)
     gazebo_models_path = os.path.join(pkg_share, gazebo_models_path)
     os.environ["GAZEBO_MODEL_PATH"] = gazebo_models_path
-    urdf_file_path = os.path.join(pkg_share, 'models/urdf/tas_car.urdf')
+    urdf_file_path = os.path.join(pkg_share, 'models/urdf/turtlebot.urdf')
 
     # Launch configuration variables specific to simulation
     headless = LaunchConfiguration('headless')

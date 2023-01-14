@@ -20,14 +20,40 @@ ekf_filter_node:
         odom_frame: odom                 # Default -> "odom" if not mentioned
         base_link_frame: base_footprint  # Default -> "base_link" if not mentioned
         world_frame: odom               # Default ->  "odom_frame" if not mentioned
-        odom0: odom
+        
 
+        ## diff drive config
+        odom0: odom
+        
         odom0_config: [true,  true,  false,
                        false, false, false,
                        true, true, false,
                        false, false, true,
                        false, false, false]
         odom0_differential: true
+
+        # odom0_config: [true,  true,  false, # pose
+        #                false, false, true,    # rotation
+        #                false, false, false,
+        #                false, false, false,
+        #                false, false, false]
+        # odom0_differential: false
+        # odom0_relative: false
+
+
+        
+        ## gps config
+        # odom1: gps/odom
+        
+        # odom1_config: [true,  true,  false, # pose
+        #                true, true, true,    # rotation
+        #                false, false, false,
+        #                false, false, false,
+        #                false, false, false]
+        # odom1_differential: false
+        # odom1_relative: false
+
+        
         
         ## imu configuration parameters
         
