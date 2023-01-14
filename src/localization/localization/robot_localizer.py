@@ -107,7 +107,7 @@ class FrameListener(Node):
 
     def __init__(self):
         super().__init__(node_name='frame_listener')
-
+        self.get_logger().info(str(self.get_clock().now().seconds_nanoseconds()[0]))
         # For TF
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
@@ -124,6 +124,7 @@ class FrameListener(Node):
 
         # for broadcasting tf updates
         self.tf_broadcaster = TransformBroadcaster(self)
+
 
 
     def on_location_update(self, msg: Odometry):
@@ -157,22 +158,6 @@ class FrameListener(Node):
         if(self.odom_car_transform):
             self.odom_car_transform = self.odom_car_transform.transform
 
-        # if odom_footprint:
-        #     self.get_logger().info("odom footprint")
-        #     self.get_logger().info(odom_footprint.transform)
-
-            # self.get_logger().info("map footprint multiplied")
-            # map_footprint_multiplied = multiply_transform(map_odom.transform, odom_footprint.transform)
-            # self.get_logger().info(print_transform(map_footprint_multiplied))
-
-            # self.get_logger().info("map odom inverted")
-            # map_odom_inverted = invert_transform(map_odom.transform)
-            # self.get_logger().info(print_transform(map_odom_inverted))
-
-            # self.get_logger().info("map odom calculated")
-            # map_odom_calculated = multiply_transform(map_footprint.transform, invert_transform(odom_footprint.transform))
-            # self.get_logger().info(print_transform(map_odom_calculated))
-
     def publish_map_odom_transform(self):
         if self.odom_car_transform == None:
             self.get_logger().info("Odom car transform None")
@@ -184,20 +169,19 @@ class FrameListener(Node):
         map_odom_transform = multiply_transform(self.map_car_transform, invert_transform(self.odom_car_transform)) 
         t = TransformStamped()
         t.header.stamp = self.get_clock().now().to_msg()
-        self.get_logger().info(t.header.stamp)
         t.header.frame_id = "map"
         t.child_frame_id = "odom"
 
         t.transform = map_odom_transform
         self.tf_broadcaster.sendTransform(t)    
 
-
-if __name__ == '__main__':
-    rclpy.init()
+def main(args=None):
+    rclpy.init(args=args)
     node = FrameListener()
-    try:
-        rclpy.spin(node)
-    except KeyboardInterrupt:
-        pass
+    rclpy.spin(node)
 
     rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
+   
