@@ -36,8 +36,8 @@ def export_traj_race(file_paths: dict,
 
     # export race trajectory
     #header = "s_m; x_m; y_m; psi_rad; kappa_radpm; vx_mps; ax_mps2"
-    header = "x_m; y_m; psi_rad"
-    fmt = "%.7f; %.7f; %.7f"
+    header = "x_m, y_m, psi_rad"
+    fmt = "%.7f, %.7f, %.7f"
     with open(file_paths["traj_race_export"], 'ab') as fh:
         np.savetxt(fh, traj_race[:, 1:], fmt=fmt, header=header)
 

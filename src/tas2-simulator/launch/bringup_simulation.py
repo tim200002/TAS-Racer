@@ -94,7 +94,7 @@ def generate_launch_description():
         name='rviz2',
         output='screen',
         arguments=['-d', rviz_config_file_path],
-        parameters=[{'use_sim_time': use_sim_time}],
+        parameters=[{'use_sim_time': use_sim_time, '__log_level': "error"}],
         condition=IfCondition(PythonExpression(['not ', headless]))
     )
 
@@ -110,6 +110,17 @@ def generate_launch_description():
         ]
     )
 
+    start_localizer = Node(
+        package='localization',
+        executable='localizer',
+        output='screen',
+        parameters=[
+            {
+                'use_sim_time': use_sim_time,
+            }
+        ]
+    )
+
     # Create the launch description and populate
     ld = LaunchDescription()
 
@@ -121,8 +132,10 @@ def generate_launch_description():
 
     # launch the nodes
     # ld.add_action(start_gazebo_cmd)
+    #ld.add_action(start_localizer)
+    ld.add_action(start_robot_state_publisher_cmd)
     ld.add_action(start_gazebo_server_cmd)
     ld.add_action(start_gazebo_client_cmd)
     ld.add_action(start_rviz_cmd)
-    ld.add_action(start_robot_state_publisher_cmd)
+    
     return ld

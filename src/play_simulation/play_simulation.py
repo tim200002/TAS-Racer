@@ -167,7 +167,7 @@ def main():
     rviz_set_initial_state(nav,node, start_pose.to_ros_message())
     python_time.sleep(3)
     print("start navigation")
-    #start_navigation(nav, node, goal_pose.to_ros_message())
+    start_navigation(nav, node, goal_pose.to_ros_message())
 
 
 

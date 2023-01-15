@@ -42,7 +42,7 @@ amcl:
     max_beams: 60
     max_particles: 2000 #5000
     min_particles: 200 #300
-    odom_frame_id: odom_wrong
+    odom_frame_id: odom_wrong # We cannot durn off ACML but can make it publish to wrong frame
     pf_err: 0.05 #0.01
     pf_z: 0.99
     recovery_alpha_fast: 0.0
