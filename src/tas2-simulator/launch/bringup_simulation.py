@@ -6,7 +6,6 @@
 # ===================================================================================
 import os
 import subprocess
-from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -14,6 +13,7 @@ from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from launch.conditions import IfCondition
+import launch_ros
 
 
 def generate_launch_description():
@@ -31,19 +31,19 @@ def generate_launch_description():
     gazebo_world_path = os.path.join(pkg_share, gazebo_world_file_path)
     gazebo_models_path = os.path.join(pkg_share, gazebo_models_path)
     os.environ["GAZEBO_MODEL_PATH"] = gazebo_models_path
-
-    print(gazebo_world_path)
+    urdf_file_path = os.path.join(pkg_share, 'models/urdf/turtlebot.urdf')
 
     # Launch configuration variables specific to simulation
     headless = LaunchConfiguration('headless')
     use_sim_time = LaunchConfiguration('use_sim_time')
     world = LaunchConfiguration('world')
+    urdf = open(urdf_file_path).read()
 
     # Declare the launch arguments
     declare_simulator_cmd = DeclareLaunchArgument(
         name='headless',
         default_value='False',
-        description='Whether to execute gzclient')
+        description='Whether to execute gzclient and rviz')
 
     declare_rviz_config_file_cmd = DeclareLaunchArgument(
         name='rviz_config_file',
@@ -60,6 +60,18 @@ def generate_launch_description():
         default_value=gazebo_world_path,
         description='Full path to the world model file to load')
 
+    declare_urdf_model_path_cmd = DeclareLaunchArgument(
+        name='urdf_model',
+        default_value=urdf_file_path,
+        description='Absolute path to robot urdf file')
+
+    declare_use_robot_state_pub_cmd = DeclareLaunchArgument(
+        name='use_robot_state_pub',
+        default_value='True',
+        description='Whether to start the robot state publisher')
+
+    
+    
     start_gazebo_server_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(os.path.join(
             pkg_gazebo_ros, 'launch', 'gzserver.launch.py')),
@@ -76,13 +88,38 @@ def generate_launch_description():
         condition=IfCondition(PythonExpression(['not ', headless])))
 
     # Launch RViz
-    start_rviz_cmd = Node(
+    start_rviz_cmd = launch_ros.actions.Node(
         package='rviz2',
         executable='rviz2',
         name='rviz2',
         output='screen',
         arguments=['-d', rviz_config_file_path],
-        parameters=[{'use_sim_time': use_sim_time}])
+        parameters=[{'use_sim_time': use_sim_time, '__log_level': "error"}],
+        condition=IfCondition(PythonExpression(['not ', headless]))
+    )
+
+    start_robot_state_publisher_cmd = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        output='screen',
+        parameters=[
+            {
+                'use_sim_time': use_sim_time,
+                'robot_description': urdf
+            }
+        ]
+    )
+
+    start_localizer = Node(
+        package='localization',
+        executable='localizer',
+        output='screen',
+        parameters=[
+            {
+                'use_sim_time': use_sim_time,
+            }
+        ]
+    )
 
     # Create the launch description and populate
     ld = LaunchDescription()
@@ -95,7 +132,10 @@ def generate_launch_description():
 
     # launch the nodes
     # ld.add_action(start_gazebo_cmd)
+    ld.add_action(start_localizer)
+    ld.add_action(start_robot_state_publisher_cmd)
     ld.add_action(start_gazebo_server_cmd)
     ld.add_action(start_gazebo_client_cmd)
     ld.add_action(start_rviz_cmd)
+    
     return ld

@@ -1,0 +1,5 @@
+<library path="minimum_curvature_planner_plugin">
+  <class name="minimum_curvature_planner/MinimumCurvaturePlanner" type="minimum_curvature_planner::MinimumCurvaturePlanner" base_class_type="nav2_core::GlobalPlanner">
+    <description>This is an example plugin which produces straight path.</description>
+  </class>
+</library>
