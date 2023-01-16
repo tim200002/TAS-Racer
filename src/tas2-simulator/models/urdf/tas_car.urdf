@@ -24,8 +24,13 @@
   </material>
 
   <!-- ************ TAS2 basefootprint and base ************ -->
-  <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
   <link name="base_footprint"/>
+
+  <joint name="base_footprint_base_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0.1795 0 0"/>
+    <parent link="base_footprint"/>
+    <child link="base"/>
+  </joint>
   
   <link name="base">
     <visual>
@@ -45,11 +50,7 @@
       <inertia ixx="0.0135" ixy="0.0" ixz="0.0" iyy="0.03" iyz="0.0" izz="0.433"/>
     </inertial>
   </link>
-  <joint name="base_footprint_base_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="0.1795 0 0"/>
-    <parent link="base_footprint"/>
-    <child link="base"/>
-  </joint>
+  
 
   <!-- ************ NUC PC related links and joints ************ -->
   <link name="nuc_base">

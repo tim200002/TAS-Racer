@@ -160,6 +160,7 @@ def main():
     print("Spawning model in gazebo")
     #xml = open("/opt/ros/humble/share/turtlebot3_gazebo/models/turtlebot3_waffle_pi/model.sdf").read()
     xml = open("/home/tim/tas2-racer/src/tas2-simulator/models/urdf/turtlebot.sdf").read()
+    #xml = open("/home/tim/tas2-racer/src/tas2-simulator/models/urdf/tas_car.sdf").read()
     gazebo_spawn_entity(node, "tas_car",xml , start_pose.to_ros_message())
     python_time.sleep(4)
     

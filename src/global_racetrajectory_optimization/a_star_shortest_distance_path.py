@@ -138,8 +138,8 @@ def main():
 
     # transform map in a way,that each point has minimum distance too wall
     # i.e. car should drive straigt so distance should be half ot the width
-    car_with_pixels = math.ceil(car_width_meters  / occupancy_map.resolution)
-    margin_pixels = math.ceil(car_with_pixels / 2)
+    margin_meters = car_width_meters / 2
+    margin_pixels = margin_meters / occupancy_map.resolution
 
     distance_to_letal = ndimage.distance_transform_edt(occupancy_map.grid == 0)
     width_filtered_map = (distance_to_letal < margin_pixels)*1
