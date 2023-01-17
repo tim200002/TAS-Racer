@@ -11,11 +11,12 @@ import numpy as np
 import math
 from scipy import ndimage
 from helper_funcs_glob.src.a_star import AStar
+import time
 
 class DynamicRouteReplanner:
     def __init__(self, ):
-        self.lookadhead_distance_m = 5
-        self.merge_back_distance_m = 5
+        self.lookadhead_distance_m = 2
+        self.merge_back_distance_m = 1
         self.margin_pixels = 8
 
     def init(self, reference_path_meters:list[Point], reference_path_pixels: list[Point]):
@@ -126,6 +127,7 @@ class DynamicRouteReplanner:
         else:
             print("Current avoiding collision")
             current_pos_pixels = occupancy_map.world_point_to_grid_point(current_pos_meter)
+            
             # check if we reached end of collision avoidance maneauver
             distance_to_end_pixels = math.sqrt((self.collision_avoidance_path_pixels[-1].x - current_pos_pixels.x)**2 + (self.collision_avoidance_path_pixels[-1].y - current_pos_pixels.y)**2)
             print(f"distance to end {distance_to_end_pixels * occupancy_map.resolution}")
@@ -141,9 +143,11 @@ class DynamicRouteReplanner:
                 # regenerate new path
                 return self.run_step(current_pos_meter, occupancy_map)
             
+
             # Take collision avoidance path and check if this path is still valid
-            closest_point_idx = self._find_closest_point_idx_on_path(self.collision_avoidance_path_pixels, current_pos_pixels, idx_must_be_larger_than=0)
+            closest_point_idx = self._find_closest_point_idx_on_path(self.collision_avoidance_path_pixels, current_pos_pixels, idx_must_be_larger_than=-1)
             has_collided, collision_idx = self._check_path_for_collision(self.collision_avoidance_path_pixels, self.margin_pixels, distance_to_objects_pixels)
+            print(f"closest point index {closest_point_idx}")
 
             if not has_collided:
                 print("Current avoidance path is good, keep it")
@@ -151,18 +155,63 @@ class DynamicRouteReplanner:
             
             print("Calculating new collision avoidance path")
             # there was a collision -> recalculate collision avoidance path
-            start_point = self.collision_avoidance_path_pixels[collision_idx]
-            end_point = self.collision_avoidance_path_pixels[-1]
 
+            # we dont want to recalculate whole path only partially
+            # go some steps from collision back only recalculate path from here and add it to new one
+            print(f"collision index {collision_idx}")
+           
+            offset_to_collision = 2
+            collision_idx_offsetes = max(collision_idx - offset_to_collision,0)
+            start_point = self.collision_avoidance_path_pixels[collision_idx_offsetes]
+            print(f"start point of path recalculation is {start_point}")
+
+            # recalculate end point to once again admit offset
+
+            # calculate closest point on reference_trajectory
+            closest_point_idx_ref_trajectory = self._find_closest_point_idx_on_path(self.reference_path_pixels, start_point)
+
+            # calculate new distance map
             distance_to_letal = ndimage.distance_transform_edt(occupancy_map.grid == 0)
+
+            # check if closest point is colliding
+            closest_point_pixels = self.reference_path_pixels[closest_point_idx_ref_trajectory]
+            print(f"closes point on reference trajectory is {closest_point_pixels}")
+
+            # not quite sure how to handle this case, probably we are lucky and pretty much at end of collision
+            # use old end point
+            if(not distance_to_letal[closest_point_pixels.y, closest_point_pixels.x] < self.margin_pixels):
+                print("Closes point not colliding")
+                end_point = self.collision_avoidance_path_pixels[-1]
+            
+            # recalculate end point to admit margin
+            else:
+                print("Closes point colliding")
+                # find closest point after object that is far enough away from object
+                idx_after_initial_collision = closest_point_idx_ref_trajectory + 1
+
+                first_valid_idx = None
+                for i, point in enumerate(self.reference_path_pixels[idx_after_initial_collision:]):
+                    distance_pixels = distance_to_objects_pixels[point.y, point.x]
+                    if distance_pixels > self.margin_pixels:
+                        first_valid_idx = idx_after_initial_collision + i
+                        break
+                
+                _, extension_path_pxiels = self._extend_path_meters_into_future(self.reference_path_meters, self.reference_path_pixels, first_valid_idx, self.merge_back_distance_m)
+                end_point = extension_path_pxiels[-1]
+
+            print(f"claculated new end point to be {end_point}")
+
+            # prepare grid for new run of A star
             width_filterd_grid = (distance_to_letal < self.margin_pixels) * 1
 
             assert width_filterd_grid[start_point.y, start_point.x] == 0
             assert width_filterd_grid[end_point.y, end_point.x] == 0
 
             path_pixels = AStar.find_path(start_point, end_point, width_filterd_grid)[::10]
-            self.collision_avoidance_path_pixels = path_pixels
-            return path_pixels, 0
+            print(f"len new path {len(path_pixels)}")
+            self.collision_avoidance_path_pixels = self.collision_avoidance_path_pixels[:collision_idx_offsetes - 1] + path_pixels
+            print(f"len of complete trajectory {len(self.collision_avoidance_path_pixels)}")
+            return self.collision_avoidance_path_pixels, closest_point_idx
 
 
 
@@ -198,8 +247,9 @@ def prepare():
     
     # Apply objects
     object = np.zeros_like(occupancy_grid)
-    object[1085:1200, 780:850] = 2
+    # object[1085:1200, 780:850] = 2
     object[600:650, 1020:1200] = 2
+    #object[650:700, 1050:1200] = 2
 
     occupancy_grid_with_object = occupancy_map.grid + object
     occupancy_grid_with_object[occupancy_grid_with_object > 2] = 2
@@ -212,12 +262,16 @@ def run(occupancy_map: Map, path_meters: list[Point], path_pixels: list[Point]):
     import matplotlib.pyplot as plt
     from matplotlib.animation import FuncAnimation
 
+    plt.ion()
+    figure, ax = plt.subplots(figsize=(10, 8))
+
     dynamic_route_planner = DynamicRouteReplanner()
     dynamic_route_planner.init(path_meters, path_pixels)
 
     next_pos_m = path_meters[240]
 
     while True:
+        ax.clear()
         new_path, current_idx = dynamic_route_planner.run_step(next_pos_m, occupancy_map)
         # current idx == NOne if we return completeyl new path
         if current_idx == None:
@@ -230,10 +284,17 @@ def run(occupancy_map: Map, path_meters: list[Point], path_pixels: list[Point]):
         
 
         
-        plt.matshow(occupancy_map.grid)
-        plt.scatter([point.x for point in new_path], [point.y for point in new_path], s=1)
-        plt.scatter(current_pos_pixels.x, current_pos_pixels.y)
-        plt.show()
+        ax.matshow(occupancy_map.grid)
+        ax.scatter([point.x for point in new_path], [point.y for point in new_path], s=1)
+        ax.scatter(current_pos_pixels.x, current_pos_pixels.y)
+
+        figure.canvas.draw()
+        figure.canvas.flush_events()
+        key = input("space to continue, s to spawn new object")
+        if key == 's':
+            occupancy_map.grid[650:700, 1050:1200] = 2
+
+
 
 
 
