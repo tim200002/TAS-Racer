@@ -37,6 +37,8 @@ namespace minimum_curvature_planner
         RCLCPP_INFO(
             node_->get_logger(), "Activating plugin %s of type NavfnPlanner",
             name_.c_str());
+
+            
     }
 
     void MinimumCurvaturePlanner::deactivate()

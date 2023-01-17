@@ -11,11 +11,12 @@ find_package(ament_cmake REQUIRED)
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(nav2_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/FindPath.srv"
-  DEPENDENCIES geometry_msgs # Add packages that above messages depend on, in this case geometry_msgs for Sphere.msg
+  DEPENDENCIES geometry_msgs nav_msgs # Add packages that above messages depend on, in this case geometry_msgs for Sphere.msg
 )
 
 ament_package()

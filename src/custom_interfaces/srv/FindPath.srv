@@ -1,4 +1,5 @@
 # input
+nav_msgs/OccupancyGrid costmap
 geometry_msgs/PoseStamped start_pose
 geometry_msgs/PoseStamped goal_pose
 ---

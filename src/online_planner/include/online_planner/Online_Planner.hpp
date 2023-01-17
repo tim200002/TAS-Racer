@@ -1,6 +1,4 @@
-
-// #ifndef NAV2_STRAIGHTLINE_PLANNER__STRAIGHT_LINE_PLANNER_HPP_
-// #define NAV2_STRAIGHTLINE_PLANNER__STRAIGHT_LINE_PLANNER_HPP_
+#pragma once
 
 #include <string>
 #include <memory>
@@ -14,15 +12,13 @@
 #include "nav2_util/robot_utils.hpp"
 #include "nav2_util/lifecycle_node.hpp"
 #include "nav2_costmap_2d/costmap_2d_ros.hpp"
+#include "custom_interfaces/srv/find_path.hpp"
 
-namespace minimum_curvature_planner
-{
-
-    class MinimumCurvaturePlanner : public nav2_core::GlobalPlanner
+class OnlinePlanner : public nav2_core::GlobalPlanner
     {
     public:
-        MinimumCurvaturePlanner() = default;
-        ~MinimumCurvaturePlanner() = default;
+        OnlinePlanner() = default;
+        ~OnlinePlanner() = default;
 
         // plugin configure
         void configure(
@@ -57,11 +53,5 @@ namespace minimum_curvature_planner
         // The global frame of the costmap
         std::string global_frame_, name_;
 
-        double interpolation_resolution_;
-
         rclcpp::Client<custom_interfaces::srv::FindPath>::SharedPtr client_;
     };
-
-} // namespace nav2_straightline_planner
-
-// #endif // NAV2_STRAIGHTLINE_PLANNER__STRAIGHT_LINE_PLANNER_HPP_
