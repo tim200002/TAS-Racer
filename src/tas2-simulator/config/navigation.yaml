@@ -153,7 +153,7 @@ local_costmap:
       footprint: "[[0.51, 0.22], [0.51, -0.22], [-0.15, -0.22], [-0.15, 0.22]]"  
       update_frequency: 10.0
       publish_frequency: 2.0
-      global_frame: odom # it should be odom but to remove warnings from amcl I am putting map
+      global_frame: map # it should be odom but to remove warnings from amcl I am putting map
       robot_base_frame: base_footprint
       use_sim_time: True
       rolling_window: true

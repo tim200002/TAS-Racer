@@ -305,7 +305,7 @@ class WorldGenerator(object):
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument("-p", "--base-path", default="../../out/tracks/track_4")
+    parser.add_argument("-p", "--base-path", default="../../out/tracks/track_5")
     parser.add_argument("-t", "--track", default="track.jpeg")
     args = parser.parse_args()
 
