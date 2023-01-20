@@ -49,6 +49,7 @@ private:
     std::tuple<std::vector<Pose>, std::vector<GridPoint>> extend_path_meters_into_future(std::vector<Pose> trajectory_m, std::vector<GridPoint> path_p, int start_idx, float extension_distance);
 
     std::tuple<bool, int> check_path_for_collision(std::vector<GridPoint> path, float min_margin, Grid<double>& distanceFilteredGrid);
+    std::tuple<bool, int> check_path_for_collision_interpolated(std::vector<GridPoint> path, float min_margin, Grid<double>& distanceFilteredGrid);
 
     DistanceTransform distance_transformer = DistanceTransform();
 

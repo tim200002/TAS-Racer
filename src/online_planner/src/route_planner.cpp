@@ -92,6 +92,44 @@ std::tuple<bool, int> RoutePlanner::check_path_for_collision(std::vector<GridPoi
     return std::make_tuple(false, 0);
 }
 
+std::tuple<bool, int> RoutePlanner::check_path_for_collision_interpolated(std::vector<GridPoint> path, float min_margin, Grid<double> &distanceFilteredGrid)
+{
+    RCLCPP_INFO(logger, "start check collision interpolated");
+
+    int interpolation_steps = 1000;
+    for (size_t i = 0; i < path.size() - 1; ++i)
+    {
+
+        Point<float> current = Point<float>(path[i].x, path[i].y);
+        Point<float> next = Point<float>(path[i + 1].x, path[i + 1].y);
+        Point<float> vec = Point<float>(next.x - current.x, next.y - current.y);
+
+        for (int k = 0; k < interpolation_steps; ++k)
+        {
+            // RCLCPP_INFO(logger, "Start interpolation for index %d and step %d", i, k);
+            Point<float> pose_interpolated = Point<float>(current.x + vec.x / interpolation_steps * k, current.y + vec.y / interpolation_steps * k);
+            // RCLCPP_INFO(logger, "Start interpolation for index %d and step %d interpolated pose(%f, %f)", i, k, pose_interpolated.x, pose_interpolated.y);
+            int x_min = floor(pose_interpolated.x);
+            int x_max = ceil(pose_interpolated.x);
+            int y_min = floor(pose_interpolated.y);
+            int y_max = ceil(pose_interpolated.y);
+            std::vector<GridPoint> points = {GridPoint(x_min, y_min), GridPoint(x_min, y_max), GridPoint(x_max, y_min), GridPoint(x_max, y_max)};
+
+            for (GridPoint &point : points)
+            {
+                if (point.x < distanceFilteredGrid.size_x && point.y < distanceFilteredGrid.size_y)
+                {
+                    if (distanceFilteredGrid.get_value(point.x, point.y) < min_margin)
+                    {
+                        return std::make_tuple(true, i);
+                    }
+                }
+            }
+        }
+    }
+    return std::make_tuple(false, 0);
+}
+
 std::vector<Pose> RoutePlanner::runStep(WorldPoint current_pos_m, nav2_costmap_2d::Costmap2D &costmap)
 {
     RCLCPP_INFO(logger, "start new iteration current pos %f, %f", current_pos_m.x, current_pos_m.y);
@@ -145,7 +183,7 @@ std::vector<Pose> RoutePlanner::runStep(WorldPoint current_pos_m, nav2_costmap_2
         RCLCPP_INFO(logger, "Lookahead path ends at (%f, %f)", lookahead_trajectory_meters.back().coordinate.x, lookahead_trajectory_meters.back().coordinate.y);
 
         RCLCPP_INFO(logger, "Check collision");
-        std::tuple<bool, int> res_check_collision = check_path_for_collision(lookahed_path_pixels, marginPixels, distanceToObjectPixels);
+        std::tuple<bool, int> res_check_collision = check_path_for_collision_interpolated(lookahed_path_pixels, marginPixels, distanceToObjectPixels);
         // Did not collide
         if (!std::get<0>(res_check_collision))
         {
@@ -188,7 +226,7 @@ std::vector<Pose> RoutePlanner::runStep(WorldPoint current_pos_m, nav2_costmap_2
         // // GridPoint start_point = closest_point_pixels;
         // GridPoint end_point = extension_path_pixels.back();
 
-        //GridPoint start_point = closest_point_pixels;
+        // GridPoint start_point = closest_point_pixels;
         GridPoint end_point = extension_path_pixels.back();
 
         RCLCPP_INFO(logger, "Before A star");
@@ -222,8 +260,6 @@ std::vector<Pose> RoutePlanner::runStep(WorldPoint current_pos_m, nav2_costmap_2
             collision_avoidance_path_pixels.push_back(GridPoint(x, y));
         }
 
-
-
         // Check if we reached end of collision avoidance maneuver
         double distance_to_end_pixel = sqrt(pow(current_pos_m.x - collision_avoidance_trajectory_m.back().coordinate.x, 2) + pow(current_pos_m.y - collision_avoidance_trajectory_m.back().coordinate.y, 2));
         float delta_m = 0.3;
@@ -242,8 +278,8 @@ std::vector<Pose> RoutePlanner::runStep(WorldPoint current_pos_m, nav2_costmap_2
         RCLCPP_INFO(logger, "Did not reach end of collision avoidance");
         // Take collision avoidance path and check if it is still valid
         // int closest_point_idx = find_closest_point_idx_on_path(collision_avoidance_path_pixels, current_pos_pixels);
-        std::tuple<bool, int> res_check_collision = check_path_for_collision(collision_avoidance_path_pixels, marginPixels, distanceToObjectPixels);
-
+        std::tuple<bool, int> res_check_collision = check_path_for_collision_interpolated(collision_avoidance_path_pixels, marginPixels, distanceToObjectPixels);
+         RCLCPP_INFO(logger, "AFter check fo collision");
 
         // Path still valid
         if (!std::get<0>(res_check_collision))
@@ -305,7 +341,7 @@ std::vector<Pose> RoutePlanner::runStep(WorldPoint current_pos_m, nav2_costmap_2
 
         std::vector<Pose> start_trajectory = splitVector(collision_avoidance_trajectory_m, 0, collision_idx_offseted - 1);
         std::vector<Pose> trajectory_a_star = pathPixelsToTrajectoryMeters(path_pixels, costmap);
-         std::vector<Pose> trajectory_combined = concatenateVectors(start_trajectory, trajectory_a_star);
+        std::vector<Pose> trajectory_combined = concatenateVectors(start_trajectory, trajectory_a_star);
         collision_avoidance_trajectory_m = trajectory_combined;
 
         return collision_avoidance_trajectory_m;
@@ -316,11 +352,13 @@ std::vector<GridPoint> RoutePlanner::runAstarStep(GridPoint start, GridPoint end
 {
     AStarSearch<MapSearchNode> astarsearch;
 
-    if(distanceToObjectPixels.get_value(start.x, start.y) < marginPixels){
-         throw std::runtime_error("A star invalid start point");
+    if (distanceToObjectPixels.get_value(start.x, start.y) < marginPixels)
+    {
+        throw std::runtime_error("A star invalid start point");
     }
-    if(distanceToObjectPixels.get_value(end.x, end.y) < marginPixels){
-         throw std::runtime_error("A star invalid end point");
+    if (distanceToObjectPixels.get_value(end.x, end.y) < marginPixels)
+    {
+        throw std::runtime_error("A star invalid end point");
     }
 
     MapSearchNode nodeStart = MapSearchNode(start.x, start.y, distanceToObjectPixels.size_x, distanceToObjectPixels.size_y, distanceToObjectPixels.getGrid());
