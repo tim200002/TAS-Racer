@@ -1,5 +1,5 @@
 <library path="online_planner_plugin">
-    <class name="online_planner/Online_Planner" type="Online_Planner" base_class_type="nav2_core::GlobalPlanner">
+    <class name="online_planner/OnlinePlanner" type="online_planner::OnlinePlanner" base_class_type="nav2_core::GlobalPlanner">
       <description>This is an example plugin which produces straight path.</description>
     </class>
-  </library>
+</library>

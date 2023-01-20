@@ -1,6 +1,7 @@
-# import sys, os
-# base_path = os.path.split(os.path.split(os.path.dirname(os.path.abspath(__file__)))[0])[0]
-# sys.path.append(base_path)
+import sys, os
+#base_path = os.path.split(os.path.split(os.path.dirname(os.path.abspath(__file__)))[0])[0]
+base_path = "/home/tim/tas2-racer/src"
+sys.path.append(base_path)
 
 from global_helpers.models.point import Point
 import math

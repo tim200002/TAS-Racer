@@ -6,6 +6,10 @@
 #include "rclcpp/rclcpp.hpp"
 #include "geometry_msgs/msg/point.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
+#include "nav_msgs/msg/occupancy_grid.h"
+#include "nav_msgs/msg/map_meta_data.h"
+#include "geometry_msgs/msg/pose.h"
+#include "std_msgs/msg/header.h"
 
 #include "nav2_core/global_planner.hpp"
 #include "nav_msgs/msg/path.hpp"
@@ -13,7 +17,12 @@
 #include "nav2_util/lifecycle_node.hpp"
 #include "nav2_costmap_2d/costmap_2d_ros.hpp"
 #include "custom_interfaces/srv/find_path.hpp"
+#include "pose.hpp"
+#include "online_planner/distance_transform.h"
+#include "route_planner.hpp"
 
+namespace online_planner{
+    
 class OnlinePlanner : public nav2_core::GlobalPlanner
     {
     public:
@@ -53,5 +62,10 @@ class OnlinePlanner : public nav2_core::GlobalPlanner
         // The global frame of the costmap
         std::string global_frame_, name_;
 
-        rclcpp::Client<custom_interfaces::srv::FindPath>::SharedPtr client_;
+        RoutePlanner* route_planner = NULL;
+
+        std::string trajectory_file;
+        
+
     };
+}

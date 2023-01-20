@@ -20,6 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'dynamic_path_finder=dynamic_path_finder.main:main'
         ],
     },
 )

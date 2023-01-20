@@ -6,13 +6,11 @@
 #include "rclcpp/rclcpp.hpp"
 #include <chrono>
 
-#include "nav_msgs/msg/occupancy_grid.h"
-#include "nav_msgs/msg/map_meta_data.h"
-#include "geometry_msgs/msg/pose.h"
-#include "std_msgs/msg/header.h"
 
-#include "online_planner/Online_Planner.hpp"
+#include "online_planner/online_planner.hpp"
 
+namespace online_planner{
+    
 using namespace std::literals::chrono_literals;
 
 void OnlinePlanner::configure(
@@ -25,6 +23,9 @@ void OnlinePlanner::configure(
     tf_ = tf;
     costmap_ = costmap_ros->getCostmap();
     global_frame_ = costmap_ros->getGlobalFrameID();
+    RCLCPP_INFO(
+        node_->get_logger(), "Global fram %s ",
+        global_frame_.c_str());
 }
 
 void OnlinePlanner::cleanup()
@@ -39,17 +40,8 @@ void OnlinePlanner::activate()
     RCLCPP_INFO(
         node_->get_logger(), "Activating plugin %s of type NavfnPlanner",
         name_.c_str());
-
-    // setup client_ for communication
-    client_ = node_->create_client<custom_interfaces::srv::FindPath>("find_path");
-    while (!client_->wait_for_service(1s))
-    {
-        if (!rclcpp::ok())
-        {
-            RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Interrupted while waiting for the service. Exiting.");
-        }
-        RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "service not available, waiting again...");
-    }
+    
+   
 }
 
 void OnlinePlanner::deactivate()
@@ -64,7 +56,6 @@ nav_msgs::msg::Path OnlinePlanner::createPlan(
     const geometry_msgs::msg::PoseStamped &goal)
 {
 
-    using namespace std::chrono_literals;
     nav_msgs::msg::Path global_path;
 
     // Checking if the goal and start state is in the global frame
@@ -119,47 +110,72 @@ nav_msgs::msg::Path OnlinePlanner::createPlan(
 
     costmap_msg.info = info;
     
-    
 
-    request->start_pose = start;
-    request->goal_pose = goal;
+    request->start_pose = start.pose;
+    request->goal_pose = goal.pose;
     request->costmap = costmap_msg;
 
+    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Start sending request");
 
-    auto result = client_->async_send_request(request);
-    // Wait for the result.
-    if (rclcpp::spin_until_future_complete(node_, result) ==
-        rclcpp::FutureReturnCode::SUCCESS)
-    {
+    // callback_group =  node_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+    // callback_group_executor.add_callback_group(callback_group, node_-> get_node_base_interface());
 
-        global_path.poses.clear();
-        global_path.header.stamp = node_->now();
-        global_path.header.frame_id = global_frame_;
-        std::vector<geometry_msgs::msg::PoseStamped> path = result.get()->path_poses;
+    // setup client_ for communication
+    // client_ = node_->create_client<custom_interfaces::srv::FindPath>("find_path", rmw_qos_profile_services_default, callback_group);
+    // client_ = node_->create_client<custom_interfaces::srv::FindPath>("find_path");
+    
+    // while (!client_->wait_for_service(1s))
+    // {
+    //     if (!rclcpp::ok())
+    //     {
+    //         RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Interrupted while waiting for the service. Exiting.");
+    //     }
+    //     RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "service not available, waiting again...");
+    // }
 
-        // update the stamp_signature
-        for (auto it = path.begin(); it != path.end(); ++it)
-        {
-            geometry_msgs::msg::PoseStamped pose;
-            pose.pose.position.x = it->pose.position.x;
-            pose.pose.position.y = it->pose.position.y;
-            pose.pose.position.z = it->pose.position.z;
-            pose.pose.orientation.x = it->pose.orientation.x;
-            pose.pose.orientation.y = it->pose.orientation.y;
-            pose.pose.orientation.z = it->pose.orientation.z;
-            pose.pose.orientation.w = it->pose.orientation.w;
-            pose.header.stamp = node_->now();
-            pose.header.frame_id = global_frame_;
-            global_path.poses.push_back(pose);
-        }
-        return global_path;
-    }
-    else
-    {
-        RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Failed to call service path_finder");
-        return global_path;
-    }
+    // auto result = client_->async_send_request(request);
+    // // Wait for the result
+    // result.future.valid
+    // while(rlcpp::ok()){
+    //     rlcpp::spin
+    // }
+    // if (callback_group_executor.spin_until_future_complete(result) ==
+    //     rclcpp::FutureReturnCode::SUCCESS)
+    // {
+    //     RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Request went through");
+    //     global_path.poses.clear();
+    //     global_path.header.stamp = node_->now();
+    //     global_path.header.frame_id = global_frame_;
+    //     std::vector<geometry_msgs::msg::Pose> path = result.get()->path_poses;
+
+    //     // update the stamp_signature
+    //     for (auto it = path.begin(); it != path.end(); ++it)
+    //     {
+    //         geometry_msgs::msg::PoseStamped pose;
+    //         pose.pose.position = it->position;
+    //         pose.pose.orientation = it->orientation;
+    //         pose.header.stamp = node_->now();
+    //         pose.header.frame_id = global_frame_;
+    //         global_path.poses.push_back(pose);
+    //     }
+    //     return global_path;
+    // }
+    // else
+    // {
+    //     RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Failed to call service path_finder");
+    //     return global_path;
+    // }
+
+     RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Before wait");
+    
+     
+
+     RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "After wait");
+
+    return global_path;
+}
+
 }
 
 #include "pluginlib/class_list_macros.hpp"
-PLUGINLIB_EXPORT_CLASS(OnlinePlanner, nav2_core::GlobalPlanner)
+PLUGINLIB_EXPORT_CLASS(online_planner::OnlinePlanner, nav2_core::GlobalPlanner)

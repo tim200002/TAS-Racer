@@ -7,6 +7,13 @@
   <maintainer email="tim.lindenau@tum.de">tim</maintainer>
   <license>TODO: License declaration</license>
 
+  <exec_depend>python-numpy</exec_depend>
+  <exec_depend>nav2_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>custom_iterfaces</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>

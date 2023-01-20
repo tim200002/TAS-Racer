@@ -11,7 +11,6 @@ import numpy as np
 import math
 from scipy import ndimage
 from helper_funcs_glob.src.a_star import AStar
-import time
 
 class DynamicRouteReplanner:
     def __init__(self, ):
