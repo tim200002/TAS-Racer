@@ -82,7 +82,6 @@ AStar::CoordinateList AStar::Generator::findPath(GridPoint source_, GridPoint ta
     openSet.push_back(new Node(source_));
 
     while (!openSet.empty()) {
-        RCLCPP_INFO(logger, "while");
         auto current_it = openSet.begin();
         current = *current_it;
 

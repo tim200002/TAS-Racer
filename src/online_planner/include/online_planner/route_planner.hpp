@@ -36,12 +36,12 @@ private:
     std::vector<Pose> reference_trajectory_m;
     std::vector<WorldPoint> reference_path_m;
 
-    int lookaheadDistance = 3;
+    int lookaheadDistance = 1;
     int mergeBackDistance = 1;
-    int marginPixels = 8;
+    int marginPixels = 4;
 
     bool isAvoidingCollision = false;
-    std::vector<GridPoint> collision_avoidance_path_pixels;
+    std::vector<Pose> collision_avoidance_trajectory_m;
 
     template<typename T>
     unsigned int find_closest_point_idx_on_path(std::vector<Point<T>> path, Point<T> reference_point);
@@ -52,7 +52,7 @@ private:
 
     DistanceTransform distance_transformer = DistanceTransform();
 
-    std::vector<GridPoint> runAstarStep(GridPoint start, GridPoint end, Grid<double> distanceToObjectPixels, unsigned char sampling_distance);
+    std::vector<GridPoint> runAstarStep(GridPoint start, GridPoint end, Grid<double>& distanceToObjectPixels, unsigned char sampling_distance);
     std::vector<Pose> pathPixelsToTrajectoryMeters(std::vector<GridPoint>& path, nav2_costmap_2d::Costmap2D &costmap);
     AStar::Generator generator;
 
