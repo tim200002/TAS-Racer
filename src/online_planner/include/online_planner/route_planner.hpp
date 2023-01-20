@@ -36,7 +36,7 @@ private:
     std::vector<Pose> reference_trajectory_m;
     std::vector<WorldPoint> reference_path_m;
 
-    int lookaheadDistance = 1;
+    int lookaheadDistance = 4;
     int mergeBackDistance = 1;
     int marginPixels = 4;
 

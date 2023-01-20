@@ -15,7 +15,7 @@ class MapSearchNode
 public:
     int x; // the (x,y) positions of the node
     int y;
-    int trehshold_pixels = 8;
+    int trehshold_pixels = 10;
 
     unsigned size_x, size_y;
     double* grid;

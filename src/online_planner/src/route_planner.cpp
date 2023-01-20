@@ -181,23 +181,27 @@ std::vector<Pose> RoutePlanner::runStep(WorldPoint current_pos_m, nav2_costmap_2
 
         // plan new path using A Star
 
-        // int offset_to_collision = 4;
-        // int collision_idx_offseted = std::max(collision_idx - offset_to_collision, 0);
-        // GridPoint start_point = reference_path_pixels[collision_idx_offseted];
+        int offset_to_collision = 6;
+        int collision_idx_offseted = std::max(collision_idx - offset_to_collision, 0);
+        GridPoint start_point = reference_path_pixels[collision_idx_offseted];
 
         // // GridPoint start_point = closest_point_pixels;
         // GridPoint end_point = extension_path_pixels.back();
 
-        GridPoint start_point = closest_point_pixels;
+        //GridPoint start_point = closest_point_pixels;
         GridPoint end_point = extension_path_pixels.back();
 
         RCLCPP_INFO(logger, "Before A star");
         std::vector<GridPoint> path_pixels = runAstarStep(start_point, end_point, distanceToObjectPixels, 10);
         RCLCPP_INFO(logger, "After A star");
 
+        std::vector<Pose> start_trajectory = splitVector(reference_trajectory_m, 0, collision_idx_offseted - 1);
+        std::vector<Pose> trajectory_a_star = pathPixelsToTrajectoryMeters(path_pixels, costmap);
+        std::vector<Pose> trajectory_combined = concatenateVectors(start_trajectory, trajectory_a_star);
+
         // set to Collision avoidance
         isAvoidingCollision = true;
-        collision_avoidance_trajectory_m = pathPixelsToTrajectoryMeters(path_pixels, costmap);
+        collision_avoidance_trajectory_m = trajectory_combined;
 
         return collision_avoidance_trajectory_m;
 
@@ -215,14 +219,14 @@ std::vector<Pose> RoutePlanner::runStep(WorldPoint current_pos_m, nav2_costmap_2
         {
             int x, y;
             costmap.worldToMapNoBounds(collision_avoidance_trajectory_m[i].coordinate.x, collision_avoidance_trajectory_m[i].coordinate.y, x, y);
-            reference_path_pixels.push_back(GridPoint(x, y));
+            collision_avoidance_path_pixels.push_back(GridPoint(x, y));
         }
 
 
 
         // Check if we reached end of collision avoidance maneuver
         double distance_to_end_pixel = sqrt(pow(current_pos_m.x - collision_avoidance_trajectory_m.back().coordinate.x, 2) + pow(current_pos_m.y - collision_avoidance_trajectory_m.back().coordinate.y, 2));
-        float delta_m = 0.8;
+        float delta_m = 0.3;
 
         RCLCPP_INFO(logger, "Did not reach end of collision avoidance: distance %f", distance_to_end_pixel);
 
@@ -240,8 +244,6 @@ std::vector<Pose> RoutePlanner::runStep(WorldPoint current_pos_m, nav2_costmap_2
         // int closest_point_idx = find_closest_point_idx_on_path(collision_avoidance_path_pixels, current_pos_pixels);
         std::tuple<bool, int> res_check_collision = check_path_for_collision(collision_avoidance_path_pixels, marginPixels, distanceToObjectPixels);
 
-        // ToDo delete later
-        return collision_avoidance_trajectory_m;
 
         // Path still valid
         if (!std::get<0>(res_check_collision))
@@ -277,6 +279,7 @@ std::vector<Pose> RoutePlanner::runStep(WorldPoint current_pos_m, nav2_costmap_2
         {
             end_point = collision_avoidance_path_pixels.back();
         }
+        // insert margin for merging back
         else
         {
             size_t idx_after_initial_collision = closest_point_idx_ref_trajectory + 1;
@@ -300,9 +303,10 @@ std::vector<Pose> RoutePlanner::runStep(WorldPoint current_pos_m, nav2_costmap_2
 
         std::vector<GridPoint> path_pixels = runAstarStep(start_point, end_point, distanceToObjectPixels, 10);
 
-        std::vector<GridPoint> start_path = splitVector(collision_avoidance_path_pixels, 0, collision_idx_offseted - 1);
-        std::vector<GridPoint> combined = concatenateVectors(start_path, path_pixels);
-        collision_avoidance_trajectory_m = pathPixelsToTrajectoryMeters(combined, costmap);
+        std::vector<Pose> start_trajectory = splitVector(collision_avoidance_trajectory_m, 0, collision_idx_offseted - 1);
+        std::vector<Pose> trajectory_a_star = pathPixelsToTrajectoryMeters(path_pixels, costmap);
+         std::vector<Pose> trajectory_combined = concatenateVectors(start_trajectory, trajectory_a_star);
+        collision_avoidance_trajectory_m = trajectory_combined;
 
         return collision_avoidance_trajectory_m;
     }
@@ -311,6 +315,13 @@ std::vector<Pose> RoutePlanner::runStep(WorldPoint current_pos_m, nav2_costmap_2
 std::vector<GridPoint> RoutePlanner::runAstarStep(GridPoint start, GridPoint end, Grid<double> &distanceToObjectPixels, unsigned char sampling_distance)
 {
     AStarSearch<MapSearchNode> astarsearch;
+
+    if(distanceToObjectPixels.get_value(start.x, start.y) < marginPixels){
+         throw std::runtime_error("A star invalid start point");
+    }
+    if(distanceToObjectPixels.get_value(end.x, end.y) < marginPixels){
+         throw std::runtime_error("A star invalid end point");
+    }
 
     MapSearchNode nodeStart = MapSearchNode(start.x, start.y, distanceToObjectPixels.size_x, distanceToObjectPixels.size_y, distanceToObjectPixels.getGrid());
     MapSearchNode nodeEnd = MapSearchNode(end.x, end.y, distanceToObjectPixels.size_x, distanceToObjectPixels.size_y, distanceToObjectPixels.getGrid());
