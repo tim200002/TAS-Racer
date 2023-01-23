@@ -13,6 +13,7 @@ from nav2_simple_commander.robot_navigator import BasicNavigator
 import rclpy
 from rclpy.node import Node
 from argparse import ArgumentParser
+import time
 
 def gazebo_get_model_list(node):
     get_model_listclient = node.create_client(GetModelList, "/get_model_list")
@@ -168,7 +169,11 @@ def main():
     rviz_set_initial_state(nav,node, start_pose.to_ros_message())
     python_time.sleep(3)
     print("start navigation")
+
+    tic = time.perf_counter()
     start_navigation(nav, node, goal_pose.to_ros_message())
+    toc = time.perf_counter()
+    print(f"Drive tool {toc-tic:0.4f} seconds")
 
 
 

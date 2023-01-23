@@ -52,6 +52,7 @@ imp_opts = {"flip_imp_track": False,                # flip imported track to rev
 # 'mincurv'             minimum curvature optimization without iterative call
 # 'mincurv_iqp'         minimum curvature optimization with iterative call
 # 'mintime'             time-optimal trajectory optimization
+#opt_type = 'shortest_path'
 opt_type = 'mincurv'
 
 # set mintime specific options (mintime only) --------------------------------------------------------------------------
@@ -147,6 +148,11 @@ elif opt_type in ['mincurv', 'mincurv_iqp']:
     pars["optim_opts"] = json.loads(parser.get('OPTIMIZATION_OPTIONS', 'optim_opts_mincurv'))
 
 
+# set import path for ggv diagram and ax_max_machines (if required)
+
+file_paths["ggv_file"] = os.path.join(file_paths["module"], "params", pars["ggv_file"])
+file_paths["ax_max_machines_file"] = os.path.join(file_paths["module"], "params",
+                                                    pars["ax_max_machines_file"])
 # ----------------------------------------------------------------------------------------------------------------------
 # IMPORT TRACK AND VEHICLE DYNAMICS INFORMATION ------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
@@ -158,6 +164,36 @@ t_start = time.perf_counter()
 reftrack_imp = helper_funcs_glob.src.import_track.import_track(imp_opts=imp_opts,
                                                                file_path=file_paths["track_file"],
                                                                width_veh=pars["veh_params"]["width"])
+
+
+# import ggv and ax_max_machines (if required)
+if not (opt_type == 'mintime' and not mintime_opts["recalc_vel_profile_by_tph"]):
+    ggv, ax_max_machines = tph.import_veh_dyn_info.\
+        import_veh_dyn_info(ggv_import_path=file_paths["ggv_file"],
+                            ax_max_machines_import_path=file_paths["ax_max_machines_file"])
+else:
+    ggv = None
+    ax_max_machines = None
+
+# set ax_pos_safe / ax_neg_safe / ay_safe if required and not set in parameters file
+if opt_type == 'mintime' and pars["optim_opts"]["safe_traj"] \
+        and (pars["optim_opts"]["ax_pos_safe"] is None
+             or pars["optim_opts"]["ax_neg_safe"] is None
+             or pars["optim_opts"]["ay_safe"] is None):
+
+    # get ggv if not available
+    if ggv is None:
+        ggv = tph.import_veh_dyn_info. \
+            import_veh_dyn_info(ggv_import_path=file_paths["ggv_file"],
+                                ax_max_machines_import_path=file_paths["ax_max_machines_file"])[0]
+
+    # limit accelerations
+    if pars["optim_opts"]["ax_pos_safe"] is None:
+        pars["optim_opts"]["ax_pos_safe"] = np.amin(ggv[:, 1])
+    if pars["optim_opts"]["ax_neg_safe"] is None:
+        pars["optim_opts"]["ax_neg_safe"] = -np.amin(ggv[:, 1])
+    if pars["optim_opts"]["ay_safe"] is None:
+        pars["optim_opts"]["ay_safe"] = np.amin(ggv[:, 2])
 
 # ----------------------------------------------------------------------------------------------------------------------
 # PREPARE REFTRACK -----------------------------------------------------------------------------------------------------
@@ -186,18 +222,18 @@ if opt_type == 'mincurv':
                                               print_debug=debug,
                                               plot_debug=plot_opts["mincurv_curv_lin"])[0]
 
-elif opt_type == 'mincurv_iqp':
-    alpha_opt, reftrack_interp, normvec_normalized_interp = tph.iqp_handler.\
-        iqp_handler(reftrack=reftrack_interp,
-                    normvectors=normvec_normalized_interp,
-                    A=a_interp,
-                    kappa_bound=pars["veh_params"]["curvlim"],
-                    w_veh=pars["optim_opts"]["width_opt"],
-                    print_debug=debug,
-                    plot_debug=plot_opts["mincurv_curv_lin"],
-                    stepsize_interp=pars["stepsize_opts"]["stepsize_reg"],
-                    iters_min=pars["optim_opts"]["iqp_iters_min"],
-                    curv_error_allowed=pars["optim_opts"]["iqp_curverror_allowed"])
+# elif opt_type == 'mincurv_iqp':
+#     alpha_opt, reftrack_interp, normvec_normalized_interp = tph.iqp_handler.\
+#         iqp_handler(reftrack=reftrack_interp,
+#                     normvectors=normvec_normalized_interp,
+#                     A=a_interp,
+#                     kappa_bound=pars["veh_params"]["curvlim"],
+#                     w_veh=pars["optim_opts"]["width_opt"],
+#                     print_debug=debug,
+#                     plot_debug=plot_opts["mincurv_curv_lin"],
+#                     stepsize_interp=pars["stepsize_opts"]["stepsize_reg"],
+#                     iters_min=pars["optim_opts"]["iqp_iters_min"],
+#                     curv_error_allowed=pars["optim_opts"]["iqp_curverror_allowed"])
 
 elif opt_type == 'shortest_path':
     alpha_opt = tph.opt_shortest_path.opt_shortest_path(reftrack=reftrack_interp,
@@ -229,6 +265,36 @@ psi_vel_opt, kappa_opt = tph.calc_head_curv_an.\
                       coeffs_y=coeffs_y_opt,
                       ind_spls=spline_inds_opt_interp,
                       t_spls=t_vals_opt_interp)
+
+
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# CALCULATE VELOCITY AND ACCELERATION PROFILE --------------------------------------------------------------------------
+# --------------------------------
+vx_profile_opt = tph.calc_vel_profile.\
+                    calc_vel_profile(ggv=ggv,
+                    ax_max_machines=ax_max_machines,
+                    v_max=pars["veh_params"]["v_max"],
+                    kappa=kappa_opt,
+                    el_lengths=el_lengths_opt_interp,
+                    closed=True,
+                    filt_window=pars["vel_calc_opts"]["vel_profile_conv_filt_window"],
+                    dyn_model_exp=pars["vel_calc_opts"]["dyn_model_exp"],
+                    drag_coeff=pars["veh_params"]["dragcoeff"],
+                    m_veh=pars["veh_params"]["mass"])
+
+# calculate longitudinal acceleration profile
+vx_profile_opt_cl = np.append(vx_profile_opt, vx_profile_opt[0])
+ax_profile_opt = tph.calc_ax_profile.calc_ax_profile(vx_profile=vx_profile_opt_cl,
+                                                     el_lengths=el_lengths_opt_interp,
+                                                     eq_length_output=False)
+
+# calculate laptime
+t_profile_cl = tph.calc_t_profile.calc_t_profile(vx_profile=vx_profile_opt,
+                                                 ax_profile=ax_profile_opt,
+                                                 el_lengths=el_lengths_opt_interp)
+print("INFO: Estimated laptime: %.2fs" % t_profile_cl[-1])
 
 # ----------------------------------------------------------------------------------------------------------------------
 # DATA POSTPROCESSING --------------------------------------------------------------------------------------------------
