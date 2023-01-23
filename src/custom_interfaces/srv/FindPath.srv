@@ -1,7 +1,0 @@
-# input
-nav_msgs/OccupancyGrid costmap
-geometry_msgs/Pose start_pose
-geometry_msgs/Pose goal_pose
----
-# output
-geometry_msgs/Pose[] path_poses
