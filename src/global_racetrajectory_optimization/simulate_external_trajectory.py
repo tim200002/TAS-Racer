@@ -195,10 +195,11 @@ if opt_type == 'mintime' and pars["optim_opts"]["safe_traj"] \
     if pars["optim_opts"]["ay_safe"] is None:
         pars["optim_opts"]["ay_safe"] = np.amin(ggv[:, 2])
 
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 # PREPARE REFTRACK -----------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
-
 reftrack_interp, normvec_normalized_interp, a_interp, coeffs_x_interp, coeffs_y_interp = \
     helper_funcs_glob.src.prep_track.prep_track(reftrack_imp=reftrack_imp,
                                                 reg_smooth_opts=pars["reg_smooth_opts"],
@@ -206,45 +207,93 @@ reftrack_interp, normvec_normalized_interp, a_interp, coeffs_x_interp, coeffs_y_
                                                 debug=debug,
                                                 min_width=imp_opts["min_track_width"])
 
-# ----------------------------------------------------------------------------------------------------------------------
-# CALL OPTIMIZATION ----------------------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------------------------
+# Load Reftrack
+# -------------------------------------------------------------------------------------------------------------------
+points = []
+with open("/home/tim/tas2-racer/out/tracks/track_4/trajectory_mincurv.csv","r" ) as f:
+    for line in f:
+        if(line.startswith("#")):
+            continue
+        words = line.split(",")
+        points.append([float(words[0]), float(words[1])])
 
-pars_tmp = pars
+points = np.array(points)
 
-# call optimization
-if opt_type == 'mincurv':
-    alpha_opt = tph.opt_min_curv.opt_min_curv(reftrack=reftrack_interp,
-                                              normvectors=normvec_normalized_interp,
-                                              A=a_interp,
-                                              kappa_bound=pars["veh_params"]["curvlim"],
-                                              w_veh=pars["optim_opts"]["width_opt"],
-                                              print_debug=debug,
-                                              plot_debug=plot_opts["mincurv_curv_lin"])[0]
+# normvec from left to right
+track_widths_right = reftrack_interp[:, 2]
+# track_width_right_post = np.empty(shape=(track_widths_right.size, 2))
+# for i, w in enumerate(track_widths_right):
+#     track_width_right_post[i, 0] = w
+#     track_width_right_post[i, 1] = w
 
-# elif opt_type == 'mincurv_iqp':
-#     alpha_opt, reftrack_interp, normvec_normalized_interp = tph.iqp_handler.\
-#         iqp_handler(reftrack=reftrack_interp,
-#                     normvectors=normvec_normalized_interp,
-#                     A=a_interp,
-#                     kappa_bound=pars["veh_params"]["curvlim"],
-#                     w_veh=pars["optim_opts"]["width_opt"],
-#                     print_debug=debug,
-#                     plot_debug=plot_opts["mincurv_curv_lin"],
-#                     stepsize_interp=pars["stepsize_opts"]["stepsize_reg"],
-#                     iters_min=pars["optim_opts"]["iqp_iters_min"],
-#                     curv_error_allowed=pars["optim_opts"]["iqp_curverror_allowed"])
 
-elif opt_type == 'shortest_path':
-    alpha_opt = tph.opt_shortest_path.opt_shortest_path(reftrack=reftrack_interp,
-                                                        normvectors=normvec_normalized_interp,
-                                                        w_veh=pars["optim_opts"]["width_opt"],
-                                                        print_debug=debug)
+track_widths_left = reftrack_interp[:, 3]
+# track_width_left_post = np.empty(shape=(track_widths_left.size, 2))
+# for i, w in enumerate(track_widths_left):
+#     track_width_left_post[i, 0] = w
+#     track_width_left_post[i, 1] = w
 
-else:
-    raise ValueError('Unknown optimization type!')
 
-print(alpha_opt)
+norm_vec_bound_right = reftrack_interp[:, :2] +normvec_normalized_interp * np.expand_dims(reftrack_interp[:, 2], axis=1)
+norm_vec_bound_left = reftrack_interp[:, :2] - normvec_normalized_interp * np.expand_dims(reftrack_interp[:, 3], axis=1)
+
+# plt.scatter([p[0] for p in norm_vec_bound_right], [p[1] for p in norm_vec_bound_right], s=0.1)
+# plt.scatter([p[0] for p in norm_vec_bound_left], [p[1] for p in norm_vec_bound_left], s=0.1)
+
+alphas = []
+points_projected_all = []
+# normvector again from left to right
+for norm_vec_idx, (point1, point2) in enumerate(zip(norm_vec_bound_left, norm_vec_bound_right)):
+    min_distance = np.Inf
+    min_idx = -1
+    min_projected_point = None
+
+    for i, traj_point in enumerate(points):
+        distance = np.abs( (point2[0] - point1[0]) * (point1[1] - traj_point[1]) - (point1[0] - traj_point[0]) * (point2[1] - point1[1]) ) / np.sqrt((point2[0] - point1[0])**2 + (point2[1] - point1[1])**2)
+        if distance < min_distance:
+            # check it it is even a viable point , i.e. projection must fall within boundaries
+
+             # Project onto line
+            ap = traj_point - point1
+            ab = point2 - point1
+            point_projected = point1 + np.dot(ap, ab) / np.dot(ab, ab) * ab
+
+            border_1 = min(point1[0], point2[0])
+            border_2 = max(point1[0], point2[0])
+            border_3 = min(point1[1], point2[1])
+            border_4 = max(point1[1], point2[1])
+            if(border_1 < point_projected[0] < border_2 and border_3 < point_projected[1] < border_4):
+                min_distance = distance
+                min_idx = i
+                min_projected_point = point_projected
+
+    
+    print(f"found closes point to normal {point1}, {point2} as {points[min_idx]}")
+
+    # Project onto line
+    ap = points[min_idx] - point1
+    ab = point2 - point1
+    point_projected = point1 + np.dot(ap, ab) / np.dot(ab, ab) * ab
+    points_projected_all.append(point_projected)
+    print(f"The projected coordinates are {point_projected}")
+
+    # now find alpha
+    alpha = (point_projected - point1)/(point2 - point1)
+    alpha_mean = np.mean(alpha)
+    print(f"alpha is {alpha} mean alpha is {alpha_mean}")
+
+    track_width_right = track_widths_right[norm_vec_idx]
+    track_width_left = track_widths_left[norm_vec_idx]
+    # rescale alpha 
+    alpha_final = alpha_mean - track_width_left
+    alphas.append(alpha_final)
+
+
+
+alpha_opt = np.array(alphas)
+plt.scatter([p[0] for p in points_projected_all], [p[1] for p in points_projected_all], s=0.1)
+#print(alpha_opt)
     
 # ----------------------------------------------------------------------------------------------------------------------
 # INTERPOLATE SPLINES TO SMALL DISTANCES BETWEEN RACELINE POINTS -------------------------------------------------------
@@ -298,6 +347,8 @@ t_profile_cl = tph.calc_t_profile.calc_t_profile(vx_profile=vx_profile_opt,
                                                  el_lengths=el_lengths_opt_interp)
 print("INFO: Estimated laptime: %.2fs" % t_profile_cl[-1])
 
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 # DATA POSTPROCESSING --------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
@@ -330,9 +381,9 @@ bound1, bound2 = helper_funcs_glob.src.get_track_boundaries.get_track_boundaries
 # ----------------------------------------------------------------------------------------------------------------------
 
 # export race trajectory  to CSV
-if "traj_race_export" in file_paths.keys():
-    helper_funcs_glob.src.export_traj_race.export_traj_race(file_paths=file_paths,
-                                                            traj_race=traj_race_cl)
+# if "traj_race_export" in file_paths.keys():
+#     helper_funcs_glob.src.export_traj_race.export_traj_race(file_paths=file_paths,
+#                                                             traj_race=traj_race_cl)
 
 # if requested, export trajectory including map information (via normal vectors) to CSV
 # if "traj_ltpl_export" in file_paths.keys():
