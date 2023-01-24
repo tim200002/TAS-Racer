@@ -207,18 +207,28 @@ reftrack_interp, normvec_normalized_interp, a_interp, coeffs_x_interp, coeffs_y_
                                                 debug=debug,
                                                 min_width=imp_opts["min_track_width"])
 
+
+start_idx = 60
+end_idx = 150
+
+reftrack_interp = reftrack_interp[start_idx: end_idx]
+normvec_normalized_interp = normvec_normalized_interp[start_idx: end_idx]
+a_interp = a_interp[start_idx: end_idx]
+coeffs_x_interp = coeffs_x_interp[start_idx: end_idx]
+coeffs_y_interp = coeffs_y_interp[start_idx: end_idx]
+
 # -------------------------------------------------------------------------------------------------------------------
 # Load Reftrack
 # -------------------------------------------------------------------------------------------------------------------
 points = []
-with open("/home/tim/tas2-racer/out/tracks/track_4/trajectory_mincurv.csv","r" ) as f:
+with open("/home/tim/tas2-racer/out/tracks/track_4/trajectory_astar.csv","r" ) as f:
     for line in f:
         if(line.startswith("#")):
             continue
         words = line.split(",")
         points.append([float(words[0]), float(words[1])])
 
-points = np.array(points)
+points = np.array(points[::10])
 
 # normvec from left to right
 track_widths_right = reftrack_interp[:, 2]
@@ -245,6 +255,7 @@ alphas = []
 points_projected_all = []
 # normvector again from left to right
 for norm_vec_idx, (point1, point2) in enumerate(zip(norm_vec_bound_left, norm_vec_bound_right)):
+   # print(f"Finnd best fit for norm vectr {point1} {point2}")
     min_distance = np.Inf
     min_idx = -1
     min_projected_point = None
@@ -267,16 +278,13 @@ for norm_vec_idx, (point1, point2) in enumerate(zip(norm_vec_bound_left, norm_ve
                 min_distance = distance
                 min_idx = i
                 min_projected_point = point_projected
+    if(min_projected_point is None):
+        print(f"None at idx {norm_vec_idx}")
+    #assert not min_projected_point is None, norm_vec_idx
 
-    
-    print(f"found closes point to normal {point1}, {point2} as {points[min_idx]}")
-
-    # Project onto line
-    ap = points[min_idx] - point1
-    ab = point2 - point1
-    point_projected = point1 + np.dot(ap, ab) / np.dot(ab, ab) * ab
+    point_projected = min_projected_point
     points_projected_all.append(point_projected)
-    print(f"The projected coordinates are {point_projected}")
+
 
     # now find alpha
     alpha = (point_projected - point1)/(point2 - point1)
