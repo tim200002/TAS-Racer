@@ -11,6 +11,7 @@ import numpy as np
 import math
 from scipy import ndimage
 from helper_funcs_glob.src.a_star import AStar
+from argparse import ArgumentParser
 
 class DynamicRouteReplanner:
     def __init__(self, ):
@@ -216,8 +217,7 @@ class DynamicRouteReplanner:
 
 
 
-def prepare():
-    base_path ="../../out/tracks/track_4/"
+def prepare(base_path):
      # Get Costmap
     with open(os.path.join(base_path, "costmap/map.npy"),'rb') as f:
         occupancy_grid = np.load(f)
@@ -298,8 +298,14 @@ def run(occupancy_map: Map, path_meters: list[Point], path_pixels: list[Point]):
 
 
 
+
 def main():
-    occupancy_map, path_meters, path_pixels = prepare()
+    parser = ArgumentParser()
+    parser.add_argument("-p", "--base-path", default="../../out/tracks/demo_dynamic_planning")
+    args = parser.parse_args()
+
+    base_path = args.base_path
+    occupancy_map, path_meters, path_pixels = prepare(base_path=base_path)
     run(occupancy_map, path_meters, path_pixels)
 
 

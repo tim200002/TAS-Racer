@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import configparser
 import pkg_resources
 import helper_funcs_glob
+import sys, os
 
 """
 Created by:
@@ -37,7 +38,7 @@ plot_opts = {"mincurv_curv_lin": False,         # plot curv. linearization (orig
              "mintime_plots": False}            # plot states, controls, friction coeffs etc. (mintime only)
 
 
-file_paths["track_name"] = "track_4"      
+file_paths["track_name"] = "demo"      
 
 # set import options ---------------------------------------------------------------------------------------------------
 imp_opts = {"flip_imp_track": False,                # flip imported track to reverse direction
@@ -50,8 +51,7 @@ imp_opts = {"flip_imp_track": False,                # flip imported track to rev
 # set optimization type ------------------------------------------------------------------------------------------------
 # 'shortest_path'       shortest path optimization
 # 'mincurv'             minimum curvature optimization without iterative call
-# 'mincurv_iqp'         minimum curvature optimization with iterative call
-# 'mintime'             time-optimal trajectory optimization
+
 #opt_type = 'shortest_path'
 opt_type = 'mincurv'
 
@@ -95,7 +95,7 @@ if opt_type == "mintime" and not mintime_opts["recalc_vel_profile_by_tph"] and l
 
 # get current path
 file_paths["module"] = os.path.dirname(os.path.abspath(__file__))
-file_paths["base"] = "/home/tim/tas2-racer/"
+file_paths["base"] =  os.path.split(os.path.split(os.path.join(os.path.dirname(os.path.abspath(__file__))))[0])[0]
 
 # read dependencies from requirements.txt
 requirements_path = os.path.join(file_paths["module"], 'requirements.txt')
@@ -243,8 +243,6 @@ elif opt_type == 'shortest_path':
 
 else:
     raise ValueError('Unknown optimization type!')
-
-print(alpha_opt)
     
 # ----------------------------------------------------------------------------------------------------------------------
 # INTERPOLATE SPLINES TO SMALL DISTANCES BETWEEN RACELINE POINTS -------------------------------------------------------

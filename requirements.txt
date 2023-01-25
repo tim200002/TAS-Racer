@@ -1,0 +1,11 @@
+numpy
+matplotlib
+casadi
+scipy
+scikit-learn
+opencv-python
+pyyaml
+lxml
+scikit-image
+quadprog
+global_helpers

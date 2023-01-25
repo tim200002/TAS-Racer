@@ -29,7 +29,7 @@ Grid<double> DistanceTransform::calculate_distmap(Grid<unsigned char>& binaryGri
             }
         }
     }
-    cv::imwrite("/home/tim/tas2-racer/out/debug/before_distmap.png", gridMapImage);
+    // cv::imwrite("/home/tim/tas2-racer/out/debug/before_distmap.png", gridMapImage);
 
     RCLCPP_INFO(logger, "distmap before check some values %d %d %d", uchar_ptr[0], uchar_ptr[1], uchar_ptr[499*size_x + 500]);
 
@@ -41,7 +41,7 @@ Grid<double> DistanceTransform::calculate_distmap(Grid<unsigned char>& binaryGri
     
     //cv::normalize(distanceFieldImage, distanceFieldImage, 0, 1.0, cv::NORM_MINMAX);
 
-    cv::imwrite("/home/tim/tas2-racer/out/debug/distmap.png", distanceFieldImage);
+    // cv::imwrite("/home/tim/tas2-racer/out/debug/distmap.png", distanceFieldImage);
 
     std::vector<double> distmap;
     distmap.reserve(size_x * size_y);

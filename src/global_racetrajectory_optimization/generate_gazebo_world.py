@@ -55,8 +55,8 @@ class WorldGenerator(object):
         self.map_processed[mask] = 0
 
         # crate flipped versions
-        self.map_original_flipped = np.flip(self.map_original.astype(np.float), 0)
-        self.map_processes_flipped = np.flip(self.map_processed.astype(np.float), 0)
+        self.map_original_flipped = np.flip(self.map_original.astype(float), 0)
+        self.map_processes_flipped = np.flip(self.map_processed.astype(float), 0)
 
 
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (self.kernel_size, self.kernel_size))
@@ -305,7 +305,7 @@ class WorldGenerator(object):
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument("-p", "--base-path", default="../../out/tracks/track_5")
+    parser.add_argument("-p", "--base-path", default="../../out/tracks/demo")
     parser.add_argument("-t", "--track", default="track.jpeg")
     args = parser.parse_args()
 

@@ -1,6 +1,7 @@
 import sys, os
 base_path = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
 sys.path.append(base_path)
+import matplotlib.pyplot as plt
 
 
 from global_helpers.models.map import Map
@@ -17,8 +18,8 @@ from helper_funcs_glob.src.a_star import AStar
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument("-p", "--base-path", default="../../out/tracks/track_4")
-    parser.add_argument("-w", "--width", default=1)
+    parser.add_argument("-p", "--base-path", default="../../out/tracks/demo")
+    parser.add_argument("-w", "--width", default=2)
     parser.add_argument("--start", type=int, nargs=2, default=[400, 100])
     parser.add_argument("--end", type=int, nargs=2, default=[160, 1200])
     args = parser.parse_args()
@@ -55,6 +56,10 @@ def main():
 
     trajectory = trajectory_from_path(path, occupancy_map)
     export_trajcetory(trajectory, os.path.join(base_path, "trajectory_astar.csv"))
+
+    plt.matshow(occupancy_map.grid)
+    plt.scatter([coord.x for coord in path], [coord.y for coord in path], s=0.01)
+    plt.show()
 
 
 

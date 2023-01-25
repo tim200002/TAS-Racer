@@ -1,6 +1,10 @@
 numpy
 matplotlib
-trajectory_planning_helpers
 casadi
 scipy
 scikit-learn
+opencv-python
+pyyaml
+lxml
+scikit-image
+quadprog

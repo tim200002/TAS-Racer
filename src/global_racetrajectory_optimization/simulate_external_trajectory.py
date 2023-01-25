@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import configparser
 import pkg_resources
 import helper_funcs_glob
+import os, sys
 
 """
 Created by:
@@ -37,7 +38,7 @@ plot_opts = {"mincurv_curv_lin": False,         # plot curv. linearization (orig
              "mintime_plots": False}            # plot states, controls, friction coeffs etc. (mintime only)
 
 
-file_paths["track_name"] = "track_4"      
+file_paths["track_name"] = "demo"      
 
 # set import options ---------------------------------------------------------------------------------------------------
 imp_opts = {"flip_imp_track": False,                # flip imported track to reverse direction
@@ -95,7 +96,8 @@ if opt_type == "mintime" and not mintime_opts["recalc_vel_profile_by_tph"] and l
 
 # get current path
 file_paths["module"] = os.path.dirname(os.path.abspath(__file__))
-file_paths["base"] = "/home/tim/tas2-racer/"
+file_paths["base"] = os.path.split(os.path.split(os.path.join(os.path.dirname(os.path.abspath(__file__))))[0])[0]
+
 
 # read dependencies from requirements.txt
 requirements_path = os.path.join(file_paths["module"], 'requirements.txt')
@@ -209,7 +211,7 @@ reftrack_interp, normvec_normalized_interp, a_interp, coeffs_x_interp, coeffs_y_
 
 
 start_idx = 60
-end_idx = 150
+end_idx = 100
 
 reftrack_interp = reftrack_interp[start_idx: end_idx]
 normvec_normalized_interp = normvec_normalized_interp[start_idx: end_idx]
@@ -221,14 +223,14 @@ coeffs_y_interp = coeffs_y_interp[start_idx: end_idx]
 # Load Reftrack
 # -------------------------------------------------------------------------------------------------------------------
 points = []
-with open("/home/tim/tas2-racer/out/tracks/track_4/trajectory_astar.csv","r" ) as f:
+with open(os.path.join(file_paths["base"], "out", "tracks", "track_4", "trajectory_mincurv.csv"),"r" ) as f:
     for line in f:
         if(line.startswith("#")):
             continue
         words = line.split(",")
         points.append([float(words[0]), float(words[1])])
 
-points = np.array(points[::10])
+points = np.array(points[::1])
 
 # normvec from left to right
 track_widths_right = reftrack_interp[:, 2]
@@ -283,14 +285,14 @@ for norm_vec_idx, (point1, point2) in enumerate(zip(norm_vec_bound_left, norm_ve
     #assert not min_projected_point is None, norm_vec_idx
 
     point_projected = min_projected_point
+    print(f"for normal vector {point1} {point2} new point {point_projected}")
     points_projected_all.append(point_projected)
 
 
     # now find alpha
     alpha = (point_projected - point1)/(point2 - point1)
     alpha_mean = np.mean(alpha)
-    print(f"alpha is {alpha} mean alpha is {alpha_mean}")
-
+   
     track_width_right = track_widths_right[norm_vec_idx]
     track_width_left = track_widths_left[norm_vec_idx]
     # rescale alpha 
