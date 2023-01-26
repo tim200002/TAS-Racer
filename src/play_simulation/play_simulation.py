@@ -123,7 +123,7 @@ def start_navigation(nav, node, goal_pose, global_frame="map"):
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument("-t", "--trajectory-file", default="../../out/tracks/demo/trajectory_shortest_path.csv")
+    parser.add_argument("-t", "--trajectory-file", default="../../out/tracks/demo/trajectory_mincurv.csv")
     parser.add_argument("-c", "--car", default="tas_car")
     args = parser.parse_args()
 
@@ -169,7 +169,7 @@ def main():
         gazebo_delete_entity(node, "tas_car")
     
     print("Spawning model in gazebo")
-    xml = open(os.path.join(base_path , "tas2-simulator/models/urdf/tas_car_copy.sdf")).read()
+    xml = open(os.path.join(base_path , "tas2-simulator/models/urdf/tas_car.sdf")).read()
     gazebo_spawn_entity(node, "tas_car",xml , start_pose.to_ros_message())
     python_time.sleep(4)
     

@@ -120,7 +120,7 @@ global_costmap:
     ros__parameters:
       rolling_window: true
       footprint_padding: 0.03
-      footprint: "[[0.13, 0.18], [0.13, -0.18], [-0.15, -0.18], [-0.15, 0.18]]"  
+      footprint: "[[0.51, 0.22], [0.51, -0.22], [-0.15, -0.22], [-0.15, 0.22]]"  
       update_frequency: 2.0
       publish_frequency: 2.0
       global_frame: map
@@ -165,7 +165,7 @@ local_costmap:
   local_costmap:
     ros__parameters:
       footprint_padding: 0.03
-      footprint: "[[0.13, 0.18], [0.13, -0.18], [-0.15, -0.18], [-0.15, 0.18]]"  
+      footprint: "[[0.51, 0.22], [0.51, -0.22], [-0.15, -0.22], [-0.15, 0.22]]"  
       update_frequency: 10.0
       publish_frequency: 2.0
       global_frame: map # it should be odom but to remove warnings from amcl I am putting map
@@ -229,7 +229,7 @@ controller_server:
       stateful: True
     FollowPath:
       plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
-      desired_linear_vel: 2.5
+      desired_linear_vel: 1.8
       lookahead_dist: 0.6
       min_lookahead_dist: 0.3
       max_lookahead_dist: 0.9
@@ -339,7 +339,7 @@ planner_server:
     planner_plugins: ['GridBased']
     GridBased:
       plugin: "offline_planner/OfflinePlanner"
-      trajectory_file: "/home/tim/tas2-racer/out/tracks/demo/trajectory_shortest_path.csv" # Please overwrite with right path to trajectory
+      trajectory_file: "/home/tim/tas2-racer/out/tracks/demo/trajectory_mincurv.csv" # Please overwrite with right path to trajectory
 
 #! Activate this part when using the online planned trajectory
 # planner_server:

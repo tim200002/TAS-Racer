@@ -16,7 +16,6 @@
 #include "nav2_util/robot_utils.hpp"
 #include "nav2_util/lifecycle_node.hpp"
 #include "nav2_costmap_2d/costmap_2d_ros.hpp"
-#include "custom_interfaces/srv/find_path.hpp"
 #include "pose.hpp"
 #include "online_planner/distance_transform.h"
 #include "route_planner.hpp"
