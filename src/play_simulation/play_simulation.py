@@ -123,7 +123,7 @@ def start_navigation(nav, node, goal_pose, global_frame="map"):
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument("-t", "--trajectory-file", default="../../out/tracks/track_4/trajectory_mincurv.csv")
+    parser.add_argument("-t", "--trajectory-file", default="../../out/tracks/demo/trajectory_shortest_path.csv")
     parser.add_argument("-c", "--car", default="tas_car")
     args = parser.parse_args()
 
@@ -144,7 +144,17 @@ def main():
 
 
     start_pose: my_Pose = trajectory[0]
+
     goal_pose: my_Pose = trajectory[-1]
+    # i = len(trajectory)-1
+    # while(i>=0):
+    #     temp_pose = trajectory[i]
+    #     distance = (temp_pose.coordinate - start_pose.coordinate).norm()
+    #     if(distance > 20):
+    #         goal_pose = temp_pose
+    #         break
+    #     i -= 1
+    # assert not goal_pose is None
 
     rclpy.init()
     node = Node("service")
@@ -159,7 +169,7 @@ def main():
         gazebo_delete_entity(node, "tas_car")
     
     print("Spawning model in gazebo")
-    xml = open(os.path.join(base_path , "tas2-simulator/models/urdf/turtlebot.sdf")).read()
+    xml = open(os.path.join(base_path , "tas2-simulator/models/urdf/tas_car_copy.sdf")).read()
     gazebo_spawn_entity(node, "tas_car",xml , start_pose.to_ros_message())
     python_time.sleep(4)
     

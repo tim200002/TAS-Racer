@@ -20,8 +20,9 @@ def main():
     parser = ArgumentParser()
     parser.add_argument("-p", "--base-path", default="../../out/tracks/demo")
     parser.add_argument("-w", "--width", default=2)
-    parser.add_argument("--start", type=int, nargs=2, default=[400, 100])
-    parser.add_argument("--end", type=int, nargs=2, default=[160, 1200])
+
+    parser.add_argument("--start", type=int, nargs=2, default=[290, 700])
+    parser.add_argument("--end", type=int, nargs=2, default=[1100, 1000])
     args = parser.parse_args()
 
     base_path = args.base_path
@@ -40,6 +41,10 @@ def main():
         resolution = occupancy_grid_config["resolution"]
         occupancy_map = Map(occupancy_grid, resolution, Point(occupancy_grid_config["origin_x"] - resolution, occupancy_grid_config["origin_y"] -resolution))
 
+    # plt.matshow(occupancy_grid)
+    # plt.scatter(start_point.x, start_point.y)
+    # plt.scatter(end_point.x, end_point.y)
+    # plt.show()
 
     # transform map in a way,that each point has minimum distance too wall
     # i.e. car should drive straigt so distance should be half ot the width

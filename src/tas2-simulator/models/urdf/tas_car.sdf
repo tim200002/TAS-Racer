@@ -16,7 +16,8 @@
     <joint name="base_joint" type="fixed">
       <parent link="base_footprint"/>
       <child link="base"/>
-      <pose xyz="0.0 0.0 ${(wheel_radius+wheel_zoff)}" rpy="0 0 0"/>
+      <pose>0.0 0.0 0.010 0 0 0</pose>
+      <!-- <pose xyz="0.0 0.0 ${(wheel_radius+wheel_zoff)}" rpy="0 0 0"/> -->
     </joint>
       
     <link name="base">
