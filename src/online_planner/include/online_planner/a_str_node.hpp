@@ -6,6 +6,7 @@ using namespace std;
 #include <stdio.h>
 #include <math.h>
 #include <online_planner/grid.hpp>
+#include "rclcpp/rclcpp.hpp"
 
 #define DEBUG_LISTS 0
 #define DEBUG_LIST_LENGTHS_ONLY 0
@@ -15,13 +16,19 @@ class MapSearchNode
 public:
     int x; // the (x,y) positions of the node
     int y;
-    int trehshold_pixels = 10;
+    int desired_threshold_pixels = 15;
+    // int min_trehshold_pixels = 10;
 
     unsigned size_x, size_y;
-    double* grid;
+    double *grid;
 
-    MapSearchNode() { x = y = 0; size_x=size_y=0; grid=nullptr;}
-    MapSearchNode(int px, int py, int size_x_, int size_y_, double* grid_)
+    MapSearchNode()
+    {
+        x = y = 0;
+        size_x = size_y = 0;
+        grid = nullptr;
+    }
+    MapSearchNode(int px, int py, int size_x_, int size_y_, double *grid_)
     {
         x = px;
         y = py;
@@ -36,9 +43,10 @@ public:
     float GetCost(MapSearchNode &successor);
     bool IsSameState(MapSearchNode &rhs);
 
-    inline bool checkMove(int x , int y);
+    inline bool checkMove(int x, int y, int thresh);
 
     void PrintNodeInfo();
+    rclcpp::Logger logger = rclcpp::get_logger("node");
 };
 
 bool MapSearchNode::IsSameState(MapSearchNode &rhs)
@@ -74,7 +82,10 @@ float MapSearchNode::GoalDistanceEstimate(MapSearchNode &nodeGoal)
 
 bool MapSearchNode::IsGoal(MapSearchNode &nodeGoal)
 {
-
+    if (sqrt( pow(x-nodeGoal.x,2) + pow(y-nodeGoal.y,2)) <=desired_threshold_pixels){
+        return true;
+    }
+    return false;
     if ((x == nodeGoal.x) &&
         (y == nodeGoal.y))
     {
@@ -102,48 +113,74 @@ bool MapSearchNode::GetSuccessors(AStarSearch<MapSearchNode> *astarsearch, MapSe
 
     MapSearchNode NewNode;
 
-    // push each possible move except allowing the search to go backwards
+    int no_of_succeses = 0;
+    int tmep_threshold = desired_threshold_pixels;
+    do
+    {
+        if (tmep_threshold != desired_threshold_pixels)
+        {
+            RCLCPP_INFO(logger, "mpde iteration wiht thresh %d", tmep_threshold);
+        }
 
-    if(checkMove(x-1, y)){
-        NewNode = MapSearchNode(x - 1, y, size_x, size_y, grid);
-        astarsearch->AddSuccessor(NewNode);
-    }
+        if (checkMove(x - 1, y, tmep_threshold))
+        {
+            NewNode = MapSearchNode(x - 1, y, size_x, size_y, grid);
+            astarsearch->AddSuccessor(NewNode);
+            no_of_succeses++;
+        }
 
-    if(checkMove(x+1, y)){
-        NewNode = MapSearchNode(x + 1, y, size_x, size_y, grid);
-        astarsearch->AddSuccessor(NewNode);
-    }
+        if (checkMove(x + 1, y, tmep_threshold))
+        {
+            NewNode = MapSearchNode(x + 1, y, size_x, size_y, grid);
+            astarsearch->AddSuccessor(NewNode);
+            no_of_succeses++;
+        }
 
-    if(checkMove(x, y-1)){
-        NewNode = MapSearchNode(x, y-1, size_x, size_y, grid);
-        astarsearch->AddSuccessor(NewNode);
-    }
+        if (checkMove(x, y - 1, tmep_threshold))
+        {
+            NewNode = MapSearchNode(x, y - 1, size_x, size_y, grid);
+            astarsearch->AddSuccessor(NewNode);
+            no_of_succeses++;
+        }
 
+        if (checkMove(x, y + 1, tmep_threshold))
+        {
+            NewNode = MapSearchNode(x, y + 1, size_x, size_y, grid);
+            astarsearch->AddSuccessor(NewNode);
+            no_of_succeses++;
+        }
 
-    if(checkMove(x, y+1)){
-        NewNode = MapSearchNode(x, y+1, size_x, size_y, grid);
-        astarsearch->AddSuccessor(NewNode);
-    }
+        if (checkMove(x - 1, y - 1, tmep_threshold))
+        {
+            NewNode = MapSearchNode(x - 1, y - 1, size_x, size_y, grid);
+            astarsearch->AddSuccessor(NewNode);
+            no_of_succeses++;
+        }
 
-        if(checkMove(x-1, y-1)){
-        NewNode = MapSearchNode(x-1, y-1, size_x, size_y, grid);
-        astarsearch->AddSuccessor(NewNode);
-    }
+        if (checkMove(x - 1, y + 1, tmep_threshold))
+        {
+            NewNode = MapSearchNode(x - 1, y + 1, size_x, size_y, grid);
+            astarsearch->AddSuccessor(NewNode);
+            no_of_succeses++;
+        }
 
-        if(checkMove(x-1, y+1)){
-        NewNode = MapSearchNode(x-1, y+1, size_x, size_y, grid);
-        astarsearch->AddSuccessor(NewNode);
-    }
+        if (checkMove(x + 1, y - 1, tmep_threshold))
+        {
+            NewNode = MapSearchNode(x + 1, y - 1, size_x, size_y, grid);
+            astarsearch->AddSuccessor(NewNode);
+            no_of_succeses++;
+        }
 
-        if(checkMove(x+1, y-1)){
-        NewNode = MapSearchNode(x+1, y-1, size_x, size_y, grid);
-        astarsearch->AddSuccessor(NewNode);
-    }
+        if (checkMove(x + 1, y + 1, tmep_threshold))
+        {
+            NewNode = MapSearchNode(x + 1, y + 1, size_x, size_y, grid);
+            astarsearch->AddSuccessor(NewNode);
+            no_of_succeses++;
+        }
+        //RCLCPP_INFO(logger, "No of succeses %d", no_of_succeses);
+        tmep_threshold--;
+    } while (no_of_succeses == 0);
 
-        if(checkMove(x+1, y+1)){
-        NewNode = MapSearchNode(x+1, y+1, size_x, size_y, grid);
-        astarsearch->AddSuccessor(NewNode);
-    }
     return true;
 }
 
@@ -156,9 +193,11 @@ float MapSearchNode::GetCost(MapSearchNode &successor)
     return (float)sqrt(pow(x - successor.x, 2) + pow(y - successor.y, 2));
 }
 
-inline bool MapSearchNode::checkMove(int x, int y){
-    if(x >= size_x || y >= size_y){
+inline bool MapSearchNode::checkMove(int x, int y, int thresh)
+{
+    if (x >= size_x || y >= size_y)
+    {
         return false;
     }
-    return grid[y*size_x + x] > trehshold_pixels;
+    return grid[y * size_x + x] > thresh;
 }

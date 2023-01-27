@@ -37,7 +37,7 @@ private:
 
     int lookaheadDistance = 4;
     int mergeBackDistance = 1;
-    int marginPixels = 4;
+    int marginPixels = 10;
 
     bool isAvoidingCollision = false;
     std::vector<Pose> collision_avoidance_trajectory_m;

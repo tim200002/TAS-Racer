@@ -66,7 +66,7 @@ std::tuple<std::vector<Pose>, std::vector<GridPoint>> RoutePlanner::extend_path_
         Pose current_pose = trajectory_m[i];
         double distance = sqrt(pow(current_pose.coordinate.x - previous_pose.coordinate.x, 2) + pow(current_pose.coordinate.y - previous_pose.coordinate.y, 2));
         running_distance += distance;
-        RCLCPP_INFO(logger, "Extend path itration i %d, delta distace %f, extended distance %f", i, distance, running_distance);
+        // RCLCPP_INFO(logger, "Extend path itration i %d, delta distace %f, extended distance %f", i, distance, running_distance);
         extended_trajectory_m.push_back(current_pose);
         extended_path_p.push_back(path_p[i]);
         if (running_distance > extension_distance)
@@ -183,7 +183,7 @@ std::vector<Pose> RoutePlanner::runStep(WorldPoint current_pos_m, nav2_costmap_2
         RCLCPP_INFO(logger, "Lookahead path ends at (%f, %f)", lookahead_trajectory_meters.back().coordinate.x, lookahead_trajectory_meters.back().coordinate.y);
 
         RCLCPP_INFO(logger, "Check collision");
-        std::tuple<bool, int> res_check_collision = check_path_for_collision_interpolated(lookahed_path_pixels, marginPixels, distanceToObjectPixels);
+        std::tuple<bool, int> res_check_collision = check_path_for_collision(lookahed_path_pixels, marginPixels, distanceToObjectPixels);
         // Did not collide
         if (!std::get<0>(res_check_collision))
         {
@@ -219,7 +219,7 @@ std::vector<Pose> RoutePlanner::runStep(WorldPoint current_pos_m, nav2_costmap_2
 
         // plan new path using A Star
 
-        int offset_to_collision = 10;
+        int offset_to_collision = 8;
         int collision_idx_offseted = std::max(collision_idx - offset_to_collision, 0);
         GridPoint start_point = reference_path_pixels[collision_idx_offseted];
 
@@ -278,7 +278,7 @@ std::vector<Pose> RoutePlanner::runStep(WorldPoint current_pos_m, nav2_costmap_2
         RCLCPP_INFO(logger, "Did not reach end of collision avoidance");
         // Take collision avoidance path and check if it is still valid
         // int closest_point_idx = find_closest_point_idx_on_path(collision_avoidance_path_pixels, current_pos_pixels);
-        std::tuple<bool, int> res_check_collision = check_path_for_collision_interpolated(collision_avoidance_path_pixels, marginPixels, distanceToObjectPixels);
+        std::tuple<bool, int> res_check_collision = check_path_for_collision(collision_avoidance_path_pixels, marginPixels, distanceToObjectPixels);
          RCLCPP_INFO(logger, "AFter check fo collision");
 
         // Path still valid
@@ -352,6 +352,9 @@ std::vector<GridPoint> RoutePlanner::runAstarStep(GridPoint start, GridPoint end
 {
     AStarSearch<MapSearchNode> astarsearch;
 
+    RCLCPP_INFO(logger, "distnace to object pixels start x: %d, y: %d, d:%f",start.x, start.y, distanceToObjectPixels.get_value(start.x, start.y));
+    RCLCPP_INFO(logger, "distnace to object pixels end x: %d, y: %d, d:%f", end.x, end.y, distanceToObjectPixels.get_value(end.x, end.y));
+
     if (distanceToObjectPixels.get_value(start.x, start.y) < marginPixels)
     {
         throw std::runtime_error("A star invalid start point");
@@ -376,6 +379,7 @@ std::vector<GridPoint> RoutePlanner::runAstarStep(GridPoint start, GridPoint end
         SearchSteps++;
     } while (SearchState == AStarSearch<MapSearchNode>::SEARCH_STATE_SEARCHING);
 
+    RCLCPP_INFO(logger, "seacrh state %d search steps %d", SearchState, SearchSteps);
     if (SearchState == AStarSearch<MapSearchNode>::SEARCH_STATE_SUCCEEDED)
     {
         RCLCPP_INFO(logger, "A Star was succesful");
@@ -421,7 +425,6 @@ std::vector<GridPoint> RoutePlanner::runAstarStep(GridPoint start, GridPoint end
     else if (SearchState == AStarSearch<MapSearchNode>::SEARCH_STATE_FAILED)
     {
         RCLCPP_INFO(logger, "A Star NOT succesful");
-        astarsearch.EnsureMemoryFreed();
     }
 }
 
