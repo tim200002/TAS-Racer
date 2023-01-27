@@ -21,9 +21,9 @@ def read_trajectory(path: str, occupancy_map: Map):
 
 
 def main():
-    file_paths = ["../../out/tracks/demo/trajectory_mincurv.csv", "../../out/tracks/demo/trajectory_astar.csv", "../../out/tracks/demo/trajectory_shortest_path.csv"]
+    file_paths = ["../../out/tracks/track_1/trajectory_mincurv.csv", "../../out/tracks/track_1/trajectory_astar.csv", "../../out/tracks/track_1/trajectory_shortest_path.csv"]
 
-    map_base_path = "../../out/tracks/demo"
+    map_base_path = "../../out/tracks/track_1"
     with open(os.path.join(map_base_path, "costmap/map.npy"),'rb') as f:
         occupancy_grid = np.load(f)
 

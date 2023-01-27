@@ -18,12 +18,13 @@ from argparse import ArgumentParser
 
 class WorldGenerator(object):
     kernel_size = 4 # for 2D map image preprocessing
-    def __init__(self, binary_height_map, out_dir, config={"resolution": 0.050000}):
+    def __init__(self, binary_height_map, out_dir, config={"resolution": 0.050000}, add_suffix=""):
         """"
         binary_height_map should be a map where 0 stands for area free and 1 for area occupied
         """
         self.config = config
         self.out_dir = out_dir
+        self.add_suffix = add_suffix
 
         for extensions in ["gazebo", "costmap"]:
             path = os.path.join(out_dir, extensions)
@@ -217,7 +218,7 @@ class WorldGenerator(object):
         # save world file and config
         transformed_map = self.map_original
         map_inverted = abs(255-transformed_map)
-        cv2.imwrite(os.path.join(self.out_dir, "gazebo", "map.pgm"), map_inverted)
+        cv2.imwrite(os.path.join(self.out_dir, "gazebo", f"map{self.add_suffix}.pgm"), map_inverted)
 
         yaml_file_content={
             "image": "map.pgm",
@@ -228,11 +229,11 @@ class WorldGenerator(object):
             "free_thresh": 0.196
         }
 
-        with open(os.path.join(self.out_dir, "gazebo", "map.yaml"), 'w') as outfile:
+        with open(os.path.join(self.out_dir, "gazebo", f"map{self.add_suffix}.yaml"), 'w') as outfile:
             yaml.dump(yaml_file_content, outfile, default_flow_style=False)
 
         # save costmap and config
-        with open(os.path.join(self.out_dir, "costmap", "map.npy"), 'wb') as f:
+        with open(os.path.join(self.out_dir, "costmap", f"map{self.add_suffix}.npy"), 'wb') as f:
             np.save(f, self.map_original_flipped)
             #np.save(f, self.map_original)
         yaml_file_content={
@@ -241,7 +242,7 @@ class WorldGenerator(object):
            "resolution": self.resolution
         }
 
-        with open(os.path.join(self.out_dir, "costmap", "map.yaml"), 'w') as outfile:
+        with open(os.path.join(self.out_dir, "costmap", f"map{self.add_suffix}.yaml"), 'w') as outfile:
             yaml.dump(yaml_file_content, outfile, default_flow_style=False)
 
 
@@ -298,14 +299,14 @@ class WorldGenerator(object):
                 flag[end_r][end_c] = 0
                 continue
         tree = ET.ElementTree(sdf)
-        tree.write(os.path.join(self.out_dir, "gazebo", "gazebo_world.world"), pretty_print=True)
+        tree.write(os.path.join(self.out_dir, "gazebo", f"gazebo_world{self.add_suffix}.world"), pretty_print=True)
 
         self.generate_map()
 
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument("-p", "--base-path", default="../../out/tracks/demo")
+    parser.add_argument("-p", "--base-path", default="../../out/tracks/track_3")
     parser.add_argument("-t", "--track", default="track.jpeg")
     args = parser.parse_args()
 
@@ -318,7 +319,11 @@ def main():
     img_binarized = (img_binarized == 255) * 1
 
     # generate gazebo_world
-    world_generator = WorldGenerator(img_binarized, base_path, {"resolution": 0.05000})
+    if "astar" in track_name:
+        suffix = "_astar"
+        world_generator = WorldGenerator(img_binarized, base_path, {"resolution": 0.05000}, add_suffix=suffix)
+    else:
+        world_generator = WorldGenerator(img_binarized, base_path, {"resolution": 0.05000})
     world_generator.generate()
 
 if __name__ == "__main__":

@@ -38,7 +38,7 @@ plot_opts = {"mincurv_curv_lin": False,         # plot curv. linearization (orig
              "mintime_plots": False}            # plot states, controls, friction coeffs etc. (mintime only)
 
 
-file_paths["track_name"] = "demo"      
+file_paths["track_name"] = "track_2"      
 
 # set import options ---------------------------------------------------------------------------------------------------
 imp_opts = {"flip_imp_track": False,                # flip imported track to reverse direction
@@ -210,8 +210,8 @@ reftrack_interp, normvec_normalized_interp, a_interp, coeffs_x_interp, coeffs_y_
                                                 min_width=imp_opts["min_track_width"])
 
 
-start_idx = 60
-end_idx = 100
+start_idx = 0
+end_idx = -1
 
 reftrack_interp = reftrack_interp[start_idx: end_idx]
 normvec_normalized_interp = normvec_normalized_interp[start_idx: end_idx]
@@ -223,7 +223,7 @@ coeffs_y_interp = coeffs_y_interp[start_idx: end_idx]
 # Load Reftrack
 # -------------------------------------------------------------------------------------------------------------------
 points = []
-with open(os.path.join(file_paths["base"], "out", "tracks", "track_4", "trajectory_mincurv.csv"),"r" ) as f:
+with open(os.path.join(file_paths["base"], "out", "tracks", "track_2", "trajectory_astar.csv"),"r" ) as f:
     for line in f:
         if(line.startswith("#")):
             continue
@@ -276,16 +276,17 @@ for norm_vec_idx, (point1, point2) in enumerate(zip(norm_vec_bound_left, norm_ve
             border_2 = max(point1[0], point2[0])
             border_3 = min(point1[1], point2[1])
             border_4 = max(point1[1], point2[1])
-            if(border_1 < point_projected[0] < border_2 and border_3 < point_projected[1] < border_4):
+            if(border_1 <= point_projected[0] <= border_2 and border_3 <= point_projected[1] <= border_4):
                 min_distance = distance
                 min_idx = i
                 min_projected_point = point_projected
     if(min_projected_point is None):
         print(f"None at idx {norm_vec_idx}")
+        min_projected_point = np.array([ point1[0] + (point2[0] - point1[0]) / 2, point1[1] + (point2[1] - point1[1]) / 2])
     #assert not min_projected_point is None, norm_vec_idx
 
     point_projected = min_projected_point
-    print(f"for normal vector {point1} {point2} new point {point_projected}")
+    #print(f"for normal vector {point1} {point2} new point {point_projected}")
     points_projected_all.append(point_projected)
 
 
@@ -339,6 +340,7 @@ vx_profile_opt = tph.calc_vel_profile.\
                     v_max=pars["veh_params"]["v_max"],
                     kappa=kappa_opt,
                     el_lengths=el_lengths_opt_interp,
+                    #! Choose right value
                     closed=True,
                     filt_window=pars["vel_calc_opts"]["vel_profile_conv_filt_window"],
                     dyn_model_exp=pars["vel_calc_opts"]["dyn_model_exp"],

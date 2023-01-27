@@ -219,7 +219,7 @@ std::vector<Pose> RoutePlanner::runStep(WorldPoint current_pos_m, nav2_costmap_2
 
         // plan new path using A Star
 
-        int offset_to_collision = 6;
+        int offset_to_collision = 10;
         int collision_idx_offseted = std::max(collision_idx - offset_to_collision, 0);
         GridPoint start_point = reference_path_pixels[collision_idx_offseted];
 

@@ -333,23 +333,23 @@ controller_server:
 
 
 #! Activate this part when using the offline planned trajectory
-planner_server:
-  ros__parameters:
-    use_sim_time: True
-    planner_plugins: ['GridBased']
-    GridBased:
-      plugin: "offline_planner/OfflinePlanner"
-      trajectory_file: "/home/tim/tas2-racer/out/tracks/demo/trajectory_mincurv.csv" # Please overwrite with right path to trajectory
-
-#! Activate this part when using the online planned trajectory
 # planner_server:
 #   ros__parameters:
-#     expected_planner_frequency: 20.0
 #     use_sim_time: True
 #     planner_plugins: ['GridBased']
 #     GridBased:
-#       plugin: "online_planner/OnlinePlanner"
-#       trajectory_file: "/home/tim/tas2-racer/out/tracks/demo/trajectory_mincurv.csv" # Please overwrite with right path to trajectory
+#       plugin: "offline_planner/OfflinePlanner"
+#       trajectory_file: "/home/tim/tas2-racer/out/tracks/demo_dynamic_planning/trajectory_mincurv.csv" # Please overwrite with right path to trajectory
+
+#! Activate this part when using the online planned trajectory
+planner_server:
+  ros__parameters:
+    expected_planner_frequency: 20.0
+    use_sim_time: True
+    planner_plugins: ['GridBased']
+    GridBased:
+      plugin: "online_planner/OnlinePlanner"
+      trajectory_file:  "/home/tim/tas2-racer/out/tracks/demo_dynamic_planning/trajectory_mincurv.csv" # Please overwrite with right path to trajectory
 
 
 waypoint_follower:

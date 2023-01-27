@@ -12,23 +12,24 @@ from scipy import ndimage
 from argparse import ArgumentParser
 import numpy as np
 import yaml
+from skimage import measure
 
 from helper_funcs_glob.src.a_star import AStar
 
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument("-p", "--base-path", default="../../out/tracks/demo")
-    parser.add_argument("-w", "--width", default=2)
+    parser.add_argument("-p", "--base-path", default="../../out/tracks/track_1")
+    parser.add_argument("-w", "--width", default=1)
+    parser.add_argument("-s", "--show", default=False)
 
-    parser.add_argument("--start", type=int, nargs=2, default=[290, 700])
-    parser.add_argument("--end", type=int, nargs=2, default=[1100, 1000])
+    # parser.add_argument("--start", type=int, nargs=2, default=[250, 630])
+    # parser.add_argument("--end", type=int, nargs=2, default=[230, 570])
     args = parser.parse_args()
 
     base_path = args.base_path
-    car_width_meters = args.width
-    start_point = Point(args.start[0], args.start[1])
-    end_point = Point(args.end[0], args.end[1])
+    car_width_meters = args.width 
+
 
     with open(os.path.join(base_path, "costmap/map.npy"),'rb') as f:
         occupancy_grid = np.load(f)
@@ -41,10 +42,21 @@ def main():
         resolution = occupancy_grid_config["resolution"]
         occupancy_map = Map(occupancy_grid, resolution, Point(occupancy_grid_config["origin_x"] - resolution, occupancy_grid_config["origin_y"] -resolution))
 
-    # plt.matshow(occupancy_grid)
-    # plt.scatter(start_point.x, start_point.y)
-    # plt.scatter(end_point.x, end_point.y)
-    # plt.show()
+    with (open(os.path.join(base_path, "astar_config.yaml"), 'rb')) as f:
+            a_star_config = yaml.safe_load(f)
+
+    start_point = Point(a_star_config["start"][0], a_star_config["start"][1])
+    end_point = Point(a_star_config["end"][0], a_star_config["end"][1])
+
+    if a_star_config.get("wall", None):
+        for (x,y) in a_star_config["wall"]:
+            occupancy_map.grid[y,x] = 1
+    
+    if args.show:
+        plt.matshow(occupancy_map.grid)
+        plt.scatter(start_point.x, start_point.y)
+        plt.scatter(end_point.x, end_point.y)
+        plt.show()
 
     # transform map in a way,that each point has minimum distance too wall
     # i.e. car should drive straigt so distance should be half ot the width
@@ -56,6 +68,9 @@ def main():
 
     assert width_filtered_map[start_point.y, start_point.x] == 0
     assert width_filtered_map[end_point.y, end_point.x] == 0
+
+
+
 
     path = AStar.find_path(start_point, end_point, width_filtered_map)
 
