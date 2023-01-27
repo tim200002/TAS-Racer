@@ -16,8 +16,8 @@ class MapSearchNode
 public:
     int x; // the (x,y) positions of the node
     int y;
-    int desired_threshold_pixels = 15;
-    // int min_trehshold_pixels = 10;
+    int desired_threshold_pixels;
+    bool check_end_approximately;
 
     unsigned size_x, size_y;
     double *grid;
@@ -27,14 +27,18 @@ public:
         x = y = 0;
         size_x = size_y = 0;
         grid = nullptr;
+        desired_threshold_pixels = 0;
+        check_end_approximately = false;
     }
-    MapSearchNode(int px, int py, int size_x_, int size_y_, double *grid_)
+    MapSearchNode(int px, int py, int size_x_, int size_y_, double *grid_, int threshold_pixels, bool check_end_approximately_)
     {
         x = px;
         y = py;
         size_x = size_x_;
         size_y = size_y_;
         grid = grid_;
+        desired_threshold_pixels = threshold_pixels;
+        check_end_approximately = check_end_approximately_;
     }
 
     float GoalDistanceEstimate(MapSearchNode &nodeGoal);
@@ -82,10 +86,15 @@ float MapSearchNode::GoalDistanceEstimate(MapSearchNode &nodeGoal)
 
 bool MapSearchNode::IsGoal(MapSearchNode &nodeGoal)
 {
-    if (sqrt( pow(x-nodeGoal.x,2) + pow(y-nodeGoal.y,2)) <=desired_threshold_pixels){
-        return true;
+    if (check_end_approximately)
+    {
+        if (sqrt(pow(x - nodeGoal.x, 2) + pow(y - nodeGoal.y, 2)) <= desired_threshold_pixels)
+        {
+            return true;
+        }
+        return false;
     }
-    return false;
+
     if ((x == nodeGoal.x) &&
         (y == nodeGoal.y))
     {
@@ -117,67 +126,63 @@ bool MapSearchNode::GetSuccessors(AStarSearch<MapSearchNode> *astarsearch, MapSe
     int tmep_threshold = desired_threshold_pixels;
     do
     {
-        if (tmep_threshold != desired_threshold_pixels)
-        {
-            RCLCPP_INFO(logger, "mpde iteration wiht thresh %d", tmep_threshold);
-        }
 
         if (checkMove(x - 1, y, tmep_threshold))
         {
-            NewNode = MapSearchNode(x - 1, y, size_x, size_y, grid);
+            NewNode = MapSearchNode(x - 1, y, size_x, size_y, grid, desired_threshold_pixels, check_end_approximately);
             astarsearch->AddSuccessor(NewNode);
             no_of_succeses++;
         }
 
         if (checkMove(x + 1, y, tmep_threshold))
         {
-            NewNode = MapSearchNode(x + 1, y, size_x, size_y, grid);
+            NewNode = MapSearchNode(x + 1, y, size_x, size_y, grid, desired_threshold_pixels, check_end_approximately);
             astarsearch->AddSuccessor(NewNode);
             no_of_succeses++;
         }
 
         if (checkMove(x, y - 1, tmep_threshold))
         {
-            NewNode = MapSearchNode(x, y - 1, size_x, size_y, grid);
+            NewNode = MapSearchNode(x, y - 1, size_x, size_y, grid, desired_threshold_pixels, check_end_approximately);
             astarsearch->AddSuccessor(NewNode);
             no_of_succeses++;
         }
 
         if (checkMove(x, y + 1, tmep_threshold))
         {
-            NewNode = MapSearchNode(x, y + 1, size_x, size_y, grid);
+            NewNode = MapSearchNode(x, y + 1, size_x, size_y, grid, desired_threshold_pixels, check_end_approximately);
             astarsearch->AddSuccessor(NewNode);
             no_of_succeses++;
         }
 
         if (checkMove(x - 1, y - 1, tmep_threshold))
         {
-            NewNode = MapSearchNode(x - 1, y - 1, size_x, size_y, grid);
+            NewNode = MapSearchNode(x - 1, y - 1, size_x, size_y, grid, desired_threshold_pixels, check_end_approximately);
             astarsearch->AddSuccessor(NewNode);
             no_of_succeses++;
         }
 
         if (checkMove(x - 1, y + 1, tmep_threshold))
         {
-            NewNode = MapSearchNode(x - 1, y + 1, size_x, size_y, grid);
+            NewNode = MapSearchNode(x - 1, y + 1, size_x, size_y, grid, desired_threshold_pixels, check_end_approximately);
             astarsearch->AddSuccessor(NewNode);
             no_of_succeses++;
         }
 
         if (checkMove(x + 1, y - 1, tmep_threshold))
         {
-            NewNode = MapSearchNode(x + 1, y - 1, size_x, size_y, grid);
+            NewNode = MapSearchNode(x + 1, y - 1, size_x, size_y, grid, desired_threshold_pixels, check_end_approximately);
             astarsearch->AddSuccessor(NewNode);
             no_of_succeses++;
         }
 
         if (checkMove(x + 1, y + 1, tmep_threshold))
         {
-            NewNode = MapSearchNode(x + 1, y + 1, size_x, size_y, grid);
+            NewNode = MapSearchNode(x + 1, y + 1, size_x, size_y, grid, desired_threshold_pixels, check_end_approximately);
             astarsearch->AddSuccessor(NewNode);
             no_of_succeses++;
         }
-        //RCLCPP_INFO(logger, "No of succeses %d", no_of_succeses);
+        // RCLCPP_INFO(logger, "No of succeses %d", no_of_succeses);
         tmep_threshold--;
     } while (no_of_succeses == 0);
 

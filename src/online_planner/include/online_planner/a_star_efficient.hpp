@@ -23,6 +23,8 @@ given where due.
 
 */
 
+#pragma once
+
 using namespace std;
 #ifndef STLASTAR_H
 #define STLASTAR_H
@@ -198,7 +200,9 @@ public: // methods
 		// search...
 		// New: Allow user abort
 		if( m_OpenList.empty() || m_CancelRequest )
-		{
+		{	
+			
+
 			FreeAllNodes();
 			m_State = SEARCH_STATE_FAILED;
 			return m_State;

@@ -1,9 +1,11 @@
+#pragma once
 #include "online_planner/route_planner.hpp"
 #include "online_planner/grid.hpp"
 #include <cmath>
 #include <algorithm>
 #include "online_planner/a_star_efficient.hpp"
 #include "online_planner/a_str_node.hpp"
+
 
 template <typename T>
 std::vector<T> splitVector(const std::vector<T> &vec, unsigned int start, int end)
@@ -222,15 +224,11 @@ std::vector<Pose> RoutePlanner::runStep(WorldPoint current_pos_m, nav2_costmap_2
         int offset_to_collision = 8;
         int collision_idx_offseted = std::max(collision_idx - offset_to_collision, 0);
         GridPoint start_point = reference_path_pixels[collision_idx_offseted];
-
-        // // GridPoint start_point = closest_point_pixels;
-        // GridPoint end_point = extension_path_pixels.back();
-
-        // GridPoint start_point = closest_point_pixels;
-        GridPoint end_point = extension_path_pixels.back();
+        GridPoint early_stop_point = reference_path_pixels[first_valid_idx];
+        GridPoint merge_back_point = extension_path_pixels.back();
 
         RCLCPP_INFO(logger, "Before A star");
-        std::vector<GridPoint> path_pixels = runAstarStep(start_point, end_point, distanceToObjectPixels, 10);
+        std::vector<GridPoint> path_pixels = runAstarStep(start_point, merge_back_point, merge_back_point, distanceToObjectPixels, 10);
         RCLCPP_INFO(logger, "After A star");
 
         std::vector<Pose> start_trajectory = splitVector(reference_trajectory_m, 0, collision_idx_offseted - 1);
@@ -279,7 +277,7 @@ std::vector<Pose> RoutePlanner::runStep(WorldPoint current_pos_m, nav2_costmap_2
         // Take collision avoidance path and check if it is still valid
         // int closest_point_idx = find_closest_point_idx_on_path(collision_avoidance_path_pixels, current_pos_pixels);
         std::tuple<bool, int> res_check_collision = check_path_for_collision(collision_avoidance_path_pixels, marginPixels, distanceToObjectPixels);
-         RCLCPP_INFO(logger, "AFter check fo collision");
+        RCLCPP_INFO(logger, "AFter check fo collision");
 
         // Path still valid
         if (!std::get<0>(res_check_collision))
@@ -337,7 +335,7 @@ std::vector<Pose> RoutePlanner::runStep(WorldPoint current_pos_m, nav2_costmap_2
             end_point = std::get<1>(res_extension).back();
         }
 
-        std::vector<GridPoint> path_pixels = runAstarStep(start_point, end_point, distanceToObjectPixels, 10);
+        std::vector<GridPoint> path_pixels = runAstarStep(start_point, end_point, end_point, distanceToObjectPixels, 10);
 
         std::vector<Pose> start_trajectory = splitVector(collision_avoidance_trajectory_m, 0, collision_idx_offseted - 1);
         std::vector<Pose> trajectory_a_star = pathPixelsToTrajectoryMeters(path_pixels, costmap);
@@ -348,26 +346,10 @@ std::vector<Pose> RoutePlanner::runStep(WorldPoint current_pos_m, nav2_costmap_2
     }
 }
 
-std::vector<GridPoint> RoutePlanner::runAstarStep(GridPoint start, GridPoint end, Grid<double> &distanceToObjectPixels, unsigned char sampling_distance)
-{
+std::vector<GridPoint> runAstarSubStep(MapSearchNode start, MapSearchNode end, rclcpp::Logger logger)
+{   
     AStarSearch<MapSearchNode> astarsearch;
-
-    RCLCPP_INFO(logger, "distnace to object pixels start x: %d, y: %d, d:%f",start.x, start.y, distanceToObjectPixels.get_value(start.x, start.y));
-    RCLCPP_INFO(logger, "distnace to object pixels end x: %d, y: %d, d:%f", end.x, end.y, distanceToObjectPixels.get_value(end.x, end.y));
-
-    if (distanceToObjectPixels.get_value(start.x, start.y) < marginPixels)
-    {
-        throw std::runtime_error("A star invalid start point");
-    }
-    if (distanceToObjectPixels.get_value(end.x, end.y) < marginPixels)
-    {
-        throw std::runtime_error("A star invalid end point");
-    }
-
-    MapSearchNode nodeStart = MapSearchNode(start.x, start.y, distanceToObjectPixels.size_x, distanceToObjectPixels.size_y, distanceToObjectPixels.getGrid());
-    MapSearchNode nodeEnd = MapSearchNode(end.x, end.y, distanceToObjectPixels.size_x, distanceToObjectPixels.size_y, distanceToObjectPixels.getGrid());
-
-    astarsearch.SetStartAndGoalStates(nodeStart, nodeEnd);
+    astarsearch.SetStartAndGoalStates(start, end);
 
     unsigned int SearchState;
     unsigned int SearchSteps = 0;
@@ -403,30 +385,82 @@ std::vector<GridPoint> RoutePlanner::runAstarStep(GridPoint start, GridPoint end
 
         astarsearch.FreeSolutionNodes();
 
-        if (sampling_distance == 1)
-        {
-            return path_pixels;
-        }
+        return path_pixels;
 
-        std::vector<GridPoint> path_sampled;
-        path_sampled.reserve(path_pixels.size() / sampling_distance + 1);
-        for (size_t i = 0; i < path_pixels.size(); i += sampling_distance)
-        {
-            path_sampled.push_back(path_pixels[i]);
-        }
+        // if (sampling_distance == 1)
+        // {
+        //     return path_pixels;
+        // }
 
-        // last element should alway be part of path
-        if (path_sampled.back() != path_pixels.back())
-        {
-            path_sampled.push_back(path_pixels.back());
-        }
-        return path_sampled;
+        // std::vector<GridPoint> path_sampled;
+        // path_sampled.reserve(path_pixels.size() / sampling_distance + 1);
+        // for (size_t i = 0; i < path_pixels.size(); i += sampling_distance)
+        // {
+        //     path_sampled.push_back(path_pixels[i]);
+        // }
+
+        // // last element should alway be part of path
+        // if (path_sampled.back() != path_pixels.back())
+        // {
+        //     path_sampled.push_back(path_pixels.back());
+        // }
+        // return path_sampled;
     }
     else if (SearchState == AStarSearch<MapSearchNode>::SEARCH_STATE_FAILED)
     {
         RCLCPP_INFO(logger, "A Star NOT succesful");
     }
 }
+
+std::vector<GridPoint> RoutePlanner::runAstarStep(GridPoint start, GridPoint early_end, GridPoint merge_back_end, Grid<double> &distanceToObjectPixels, unsigned char sampling_distance)
+{
+
+    if (distanceToObjectPixels.get_value(start.x, start.y) < marginPixels)
+    {
+        throw std::runtime_error("A star invalid start point");
+    }
+    if (distanceToObjectPixels.get_value(merge_back_end.x, merge_back_end.y) < marginPixels)
+    {
+        throw std::runtime_error("A star invalid end point");
+    }
+
+    // Step 1 do a broad seach until end
+    RCLCPP_INFO(logger, "A Star 1");
+    MapSearchNode nodeStart = MapSearchNode(start.x, start.y, distanceToObjectPixels.size_x, distanceToObjectPixels.size_y, distanceToObjectPixels.getGrid(), marginPixels_untight, true);
+    MapSearchNode nodeEnd = MapSearchNode(early_end.x, early_end.y, distanceToObjectPixels.size_x, distanceToObjectPixels.size_y, distanceToObjectPixels.getGrid(), marginPixels_untight, true);
+
+    
+    std::vector<GridPoint> early_path = runAstarSubStep(nodeStart, nodeEnd, logger);
+
+    // Step2 do fine seach until merge back point
+    RCLCPP_INFO(logger, "A Star 2");
+    nodeStart =  MapSearchNode(early_path.back().x, early_path.back().y, distanceToObjectPixels.size_x, distanceToObjectPixels.size_y, distanceToObjectPixels.getGrid(),marginPixels, false);
+    nodeEnd =  MapSearchNode(merge_back_end.x, merge_back_end.y, distanceToObjectPixels.size_x, distanceToObjectPixels.size_y, distanceToObjectPixels.getGrid(),marginPixels, false);
+    
+    std::vector<GridPoint> laterPath = runAstarSubStep(nodeStart, nodeEnd, logger);
+
+    std::vector<GridPoint> completePath = concatenateVectors(early_path, laterPath);
+
+    if (sampling_distance == 1)
+        {
+            return completePath;
+        }
+
+        std::vector<GridPoint> path_sampled;
+        path_sampled.reserve(completePath.size() / sampling_distance + 1);
+        for (size_t i = 0; i < completePath.size(); i += sampling_distance)
+        {
+            path_sampled.push_back(completePath[i]);
+        }
+
+        // last element should alway be part of path
+        if (path_sampled.back() != completePath.back())
+        {
+            path_sampled.push_back(completePath.back());
+        }
+        return path_sampled;
+}
+
 
 std::vector<Pose> RoutePlanner::pathPixelsToTrajectoryMeters(std::vector<GridPoint> &path, nav2_costmap_2d::Costmap2D &costmap)
 {

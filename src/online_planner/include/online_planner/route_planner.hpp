@@ -38,6 +38,7 @@ private:
     int lookaheadDistance = 4;
     int mergeBackDistance = 1;
     int marginPixels = 10;
+    int marginPixels_untight = 20;
 
     bool isAvoidingCollision = false;
     std::vector<Pose> collision_avoidance_trajectory_m;
@@ -52,7 +53,8 @@ private:
 
     DistanceTransform distance_transformer = DistanceTransform();
 
-    std::vector<GridPoint> runAstarStep(GridPoint start, GridPoint end, Grid<double>& distanceToObjectPixels, unsigned char sampling_distance);
+    std::vector<GridPoint> runAstarStep(GridPoint start, GridPoint early_end, GridPoint merge_back_end, Grid<double>& distanceToObjectPixels, unsigned char sampling_distance);
+    //std::vector<GridPoint> runAstarSubStep(MapSearchNode start, MapSearchNode end);
     std::vector<Pose> pathPixelsToTrajectoryMeters(std::vector<GridPoint>& path, nav2_costmap_2d::Costmap2D &costmap);
     AStar::Generator generator;
 
