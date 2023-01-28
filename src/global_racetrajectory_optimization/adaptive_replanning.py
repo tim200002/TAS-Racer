@@ -301,7 +301,7 @@ def run(occupancy_map: Map, path_meters: list[Point], path_pixels: list[Point]):
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument("-p", "--base-path", default="../../out/tracks/demo_dynamic_planning")
+    parser.add_argument("-p", "--base-path", default="../../out/tracks/demo_dynamic_planning_animation")
     args = parser.parse_args()
 
     base_path = args.base_path

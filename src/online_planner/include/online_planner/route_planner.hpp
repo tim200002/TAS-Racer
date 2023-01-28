@@ -37,6 +37,7 @@ private:
 
     int lookaheadDistance = 4;
     int mergeBackDistance = 3;
+    float mergeBackDistanceEarly = 0.5;
     int marginPixels = 12;
     int marginPixels_untight = 20;
 

@@ -19,7 +19,7 @@ import yaml
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument("-p", "--base-path", default="../../out/tracks/track_3")
+    parser.add_argument("-p", "--base-path", default="../../out/tracks/demo")
     args = parser.parse_args()
     base_path = args.base_path
 

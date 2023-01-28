@@ -138,7 +138,7 @@ def start_navigation(nav, node, goal_pose, global_frame="map"):
 def main():
     parser = ArgumentParser()
     parser.add_argument("-t", "--trajectory-file",
-                        default="../../out/tracks/demo_dynamic_planning/trajectory_mincurv.csv")
+                        default="../../out/tracks/demo/trajectory_mincurv.csv")
     parser.add_argument("-c", "--car", default="tas_car")
     args = parser.parse_args()
 

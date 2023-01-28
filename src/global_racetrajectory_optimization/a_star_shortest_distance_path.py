@@ -19,7 +19,7 @@ from helper_funcs_glob.src.a_star import AStar
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument("-p", "--base-path", default="../../out/tracks/track_1")
+    parser.add_argument("-p", "--base-path", default="../../out/tracks/demo")
     parser.add_argument("-w", "--width", default=1)
     parser.add_argument("-s", "--show", default=False)
 

@@ -243,7 +243,7 @@ std::vector<Pose> RoutePlanner::runStep(WorldPoint current_pos_m, nav2_costmap_2
 
         RCLCPP_INFO(logger, "Closes point that is ave to merge back into %d", idx_after_initial_collision);
 
-        res_extension = extend_path_meters_into_future(reference_trajectory_m, reference_path_pixels, first_valid_idx, 0.5);
+        res_extension = extend_path_meters_into_future(reference_trajectory_m, reference_path_pixels, first_valid_idx, mergeBackDistanceEarly);
         std::vector<GridPoint> extension_path_pixels_1 = std::get<1>(res_extension);
 
         int end_idx_extension;
@@ -257,7 +257,9 @@ std::vector<Pose> RoutePlanner::runStep(WorldPoint current_pos_m, nav2_costmap_2
         int offset_to_collision = 8;
         int collision_idx_offseted = std::max(collision_idx - offset_to_collision, 0);
         GridPoint start_point = reference_path_pixels[collision_idx_offseted];
-        GridPoint early_stop_point = extension_path_pixels_1.back(); // reference_path_pixels[first_valid_idx + 5];
+        // point behin object which we should be able to get pretty close
+        GridPoint early_stop_point = extension_path_pixels_1.back(); 
+        // complete end
         GridPoint merge_back_point = extension_path_pixels_2.back();
 
         RCLCPP_INFO(logger, "Before A star");
@@ -265,7 +267,7 @@ std::vector<Pose> RoutePlanner::runStep(WorldPoint current_pos_m, nav2_costmap_2
         RCLCPP_INFO(logger, "After A star");
 
 
-        std::vector<Pose> start_trajectory = splitVector(reference_trajectory_m, 0, collision_idx_offseted - 1);
+        std::vector<Pose> start_trajectory = splitVector(reference_trajectory_m, closest_point_idx, collision_idx_offseted - 1);
         std::vector<Pose> trajectory_a_star = pathPixelsToTrajectoryMeters(path_pixels, costmap);
         std::vector<Pose> trajectory_combined = concatenateVectors(start_trajectory, trajectory_a_star);
 
@@ -296,7 +298,7 @@ std::vector<Pose> RoutePlanner::runStep(WorldPoint current_pos_m, nav2_costmap_2
         double distance_to_end_pixel = sqrt(pow(current_pos_m.x - collision_avoidance_trajectory_m.back().coordinate.x, 2) + pow(current_pos_m.y - collision_avoidance_trajectory_m.back().coordinate.y, 2));
         float delta_m = 1;
 
-        RCLCPP_INFO(logger, "Did not reach end of collision avoidance: distance %f", distance_to_end_pixel);
+        
 
         if (distance_to_end_pixel < delta_m)
         {
@@ -307,7 +309,7 @@ std::vector<Pose> RoutePlanner::runStep(WorldPoint current_pos_m, nav2_costmap_2
             return runStep(current_pos_m, costmap);
         }
 
-        RCLCPP_INFO(logger, "Did not reach end of collision avoidance");
+       RCLCPP_INFO(logger, "Did not reach end of collision avoidance: distance %f", distance_to_end_pixel);
         // Take collision avoidance path and check if it is still valid
         // int closest_point_idx = find_closest_point_idx_on_path(collision_avoidance_path_pixels, current_pos_pixels);
         std::tuple<bool, int> res_check_collision = check_path_for_collision(collision_avoidance_path_pixels, marginPixels, distanceToObjectPixels);
@@ -369,7 +371,7 @@ std::vector<Pose> RoutePlanner::runStep(WorldPoint current_pos_m, nav2_costmap_2
             end_point = std::get<1>(res_extension).back();
         }
 
-        // TODO
+        // TODO Howeverm cannot be tested currently so will wait to fix
         // std::vector<GridPoint> path_pixels = runAstarStep(start_point, end_point, end_point, distanceToObjectPixels, 10);
 
         // std::vector<Pose> start_trajectory = splitVector(collision_avoidance_trajectory_m, 0, collision_idx_offseted - 1);
@@ -421,25 +423,6 @@ std::vector<GridPoint> runAstarSubStep(MapSearchNode start, MapSearchNode end, r
         astarsearch.FreeSolutionNodes();
 
         return path_pixels;
-
-        // if (sampling_distance == 1)
-        // {
-        //     return path_pixels;
-        // }
-
-        // std::vector<GridPoint> path_sampled;
-        // path_sampled.reserve(path_pixels.size() / sampling_distance + 1);
-        // for (size_t i = 0; i < path_pixels.size(); i += sampling_distance)
-        // {
-        //     path_sampled.push_back(path_pixels[i]);
-        // }
-
-        // // last element should alway be part of path
-        // if (path_sampled.back() != path_pixels.back())
-        // {
-        //     path_sampled.push_back(path_pixels.back());
-        // }
-        // return path_sampled;
     }
     else if (SearchState == AStarSearch<MapSearchNode>::SEARCH_STATE_FAILED)
     {
@@ -452,11 +435,13 @@ std::vector<GridPoint> RoutePlanner::runAstarStep(GridPoint start, GridPoint ear
 
     // Step 1 do a broad seach until end
     RCLCPP_INFO(logger, "A Star 1");
+    // we only want to get close to early stop point (approxiate_reach_goal=true), however with enough distance to all objects (margun: marginPixels_untight)
     MapSearchNode nodeStart = MapSearchNode(start.x, start.y, distanceToObjectPixels.size_x, distanceToObjectPixels.size_y, distanceToObjectPixels.getGrid(), marginPixels_untight, true);
     MapSearchNode nodeEnd = MapSearchNode(early_end.x, early_end.y, distanceToObjectPixels.size_x, distanceToObjectPixels.size_y, distanceToObjectPixels.getGrid(), marginPixels_untight, true);
 
     std::vector<GridPoint> early_path = runAstarSubStep(nodeStart, nodeEnd, logger);
 
+    // last distance should be save, so only interpolate
     if (sampling_distance != 1)
     {
         std::vector<GridPoint> path_sampled;

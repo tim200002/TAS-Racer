@@ -306,7 +306,7 @@ class WorldGenerator(object):
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument("-p", "--base-path", default="../../out/tracks/track_3")
+    parser.add_argument("-p", "--base-path", default="../../out/tracks/demo")
     parser.add_argument("-t", "--track", default="track.jpeg")
     args = parser.parse_args()
 
@@ -318,12 +318,7 @@ def main():
     _, img_binarized = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
     img_binarized = (img_binarized == 255) * 1
 
-    # generate gazebo_world
-    if "astar" in track_name:
-        suffix = "_astar"
-        world_generator = WorldGenerator(img_binarized, base_path, {"resolution": 0.05000}, add_suffix=suffix)
-    else:
-        world_generator = WorldGenerator(img_binarized, base_path, {"resolution": 0.05000})
+    world_generator = WorldGenerator(img_binarized, base_path, {"resolution": 0.05000})
     world_generator.generate()
 
 if __name__ == "__main__":

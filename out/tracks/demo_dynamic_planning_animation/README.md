@@ -1,0 +1,1 @@
+This should just be used in comparison with the `adaptinve_replanning.py` script to show an animation of how the adaptive planner handles newly spawned objects.
