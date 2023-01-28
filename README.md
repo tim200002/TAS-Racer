@@ -76,6 +76,7 @@ Prerequisistes:
 - All packages built using colcon
 - Current Workspance sourced
 - Installed all python packages as stated in `requirements.txt`
+- in base (not virtunalenv) python distribution also insta  `pip3 install transforms3d`
 - For online planner, a working installaion of opencv (see https://docs.opencv.org/4.x/d2/de6/tutorial_py_setup_in_ubuntu.html)
 
 ## Test out path generation

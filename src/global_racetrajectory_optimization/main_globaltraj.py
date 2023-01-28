@@ -38,7 +38,7 @@ plot_opts = {"mincurv_curv_lin": False,         # plot curv. linearization (orig
              "mintime_plots": False}            # plot states, controls, friction coeffs etc. (mintime only)
 
 
-file_paths["track_name"] = "track_2"      
+file_paths["track_name"] = "demo_dynamic_planning"      
 
 # set import options ---------------------------------------------------------------------------------------------------
 imp_opts = {"flip_imp_track": False,                # flip imported track to reverse direction

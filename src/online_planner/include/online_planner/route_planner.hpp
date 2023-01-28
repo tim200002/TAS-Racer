@@ -37,7 +37,7 @@ private:
 
     int lookaheadDistance = 4;
     int mergeBackDistance = 1;
-    int marginPixels = 10;
+    int marginPixels = 12;
     int marginPixels_untight = 20;
 
     bool isAvoidingCollision = false;
@@ -46,6 +46,7 @@ private:
     template<typename T>
     unsigned int find_closest_point_idx_on_path(std::vector<Point<T>> path, Point<T> reference_point);
 
+    std::tuple<std::vector<Pose>, std::vector<GridPoint>> extend_path_meters_into_future(std::vector<Pose> trajectory_m, std::vector<GridPoint> path_p, int start_idx, float extension_distance, int& end_idx_return);
     std::tuple<std::vector<Pose>, std::vector<GridPoint>> extend_path_meters_into_future(std::vector<Pose> trajectory_m, std::vector<GridPoint> path_p, int start_idx, float extension_distance);
 
     std::tuple<bool, int> check_path_for_collision(std::vector<GridPoint> path, float min_margin, Grid<double>& distanceFilteredGrid);

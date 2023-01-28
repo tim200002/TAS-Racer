@@ -339,7 +339,7 @@ controller_server:
 #     planner_plugins: ['GridBased']
 #     GridBased:
 #       plugin: "offline_planner/OfflinePlanner"
-#       trajectory_file: "/home/tim/tas2-racer/out/tracks/demo_dynamic_planning/trajectory_mincurv.csv" # Please overwrite with right path to trajectory
+#       trajectory_file: "/home/parallels/Desktop/Parallels_Shared/Home/ros2_tas_project/out/tracks/demo_dynamic_planning/trajectory_mincurv.csv" # Please overwrite with right path to trajectory
 
 #! Activate this part when using the online planned trajectory
 planner_server:
@@ -349,7 +349,7 @@ planner_server:
     planner_plugins: ['GridBased']
     GridBased:
       plugin: "online_planner/OnlinePlanner"
-      trajectory_file:  "/home/tim/tas2-racer/out/tracks/demo_dynamic_planning/trajectory_mincurv.csv" # Please overwrite with right path to trajectory
+      trajectory_file:  "/home/parallels/Desktop/Parallels_Shared/Home/ros2_tas_project/out/tracks/demo_dynamic_planning/trajectory_mincurv.csv" # Please overwrite with right path to trajectory
 
 
 waypoint_follower:
