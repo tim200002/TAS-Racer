@@ -120,7 +120,7 @@ global_costmap:
     ros__parameters:
       rolling_window: true
       footprint_padding: 0.03
-      footprint: "[[0.51, 0.22], [0.51, -0.22], [-0.15, -0.22], [-0.15, 0.22]]"  
+      footprint: "[[0.1, 0.1], [0.1, -0.1], [-0.1, -0.1], [-0.1, 0.1]]"  
       update_frequency: 2.0
       publish_frequency: 2.0
       global_frame: map
@@ -165,7 +165,7 @@ local_costmap:
   local_costmap:
     ros__parameters:
       footprint_padding: 0.03
-      footprint: "[[0.51, 0.22], [0.51, -0.22], [-0.15, -0.22], [-0.15, 0.22]]"  
+      footprint: "[[0.1, 0.1], [0.1, -0.1], [-0.1, -0.1], [-0.1, 0.1]]"  
       update_frequency: 10.0
       publish_frequency: 2.0
       global_frame: map # it should be odom but to remove warnings from amcl I am putting map

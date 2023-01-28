@@ -36,7 +36,7 @@ private:
     std::vector<WorldPoint> reference_path_m;
 
     int lookaheadDistance = 4;
-    int mergeBackDistance = 1;
+    int mergeBackDistance = 3;
     int marginPixels = 12;
     int marginPixels_untight = 20;
 
@@ -54,7 +54,7 @@ private:
 
     DistanceTransform distance_transformer = DistanceTransform();
 
-    std::vector<GridPoint> runAstarStep(GridPoint start, GridPoint early_end, GridPoint merge_back_end, Grid<double>& distanceToObjectPixels, unsigned char sampling_distance);
+    std::vector<GridPoint> runAstarStep(GridPoint start, GridPoint early_end, GridPoint merge_back_end_1, GridPoint merge_back_end_2, Grid<double>& distanceToObjectPixels, unsigned char sampling_distance);
     //std::vector<GridPoint> runAstarSubStep(MapSearchNode start, MapSearchNode end);
     std::vector<Pose> pathPixelsToTrajectoryMeters(std::vector<GridPoint>& path, nav2_costmap_2d::Costmap2D &costmap);
     AStar::Generator generator;

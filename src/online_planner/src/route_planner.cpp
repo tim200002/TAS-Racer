@@ -5,6 +5,7 @@
 #include <algorithm>
 #include "online_planner/a_star_efficient.hpp"
 #include "online_planner/a_str_node.hpp"
+#include "online_planner/bezier.hpp"
 
 template <typename T>
 std::vector<T> splitVector(const std::vector<T> &vec, unsigned int start, int end)
@@ -79,7 +80,7 @@ std::tuple<std::vector<Pose>, std::vector<GridPoint>> RoutePlanner::extend_path_
     return std::make_tuple(extended_trajectory_m, extended_path_p);
 }
 
-std::tuple<std::vector<Pose>, std::vector<GridPoint>> RoutePlanner::extend_path_meters_into_future(std::vector<Pose> trajectory_m, std::vector<GridPoint> path_p, int start_idx, float extension_distance, int& end_index_return)
+std::tuple<std::vector<Pose>, std::vector<GridPoint>> RoutePlanner::extend_path_meters_into_future(std::vector<Pose> trajectory_m, std::vector<GridPoint> path_p, int start_idx, float extension_distance, int &end_index_return)
 {
     Pose current_pose_meters = trajectory_m[start_idx];
     GridPoint current_pos_pixels = path_p[start_idx];
@@ -99,7 +100,7 @@ std::tuple<std::vector<Pose>, std::vector<GridPoint>> RoutePlanner::extend_path_
         extended_trajectory_m.push_back(current_pose);
         extended_path_p.push_back(path_p[i]);
         if (running_distance > extension_distance)
-        {   
+        {
             end_index_return = i;
             break;
         }
@@ -256,17 +257,13 @@ std::vector<Pose> RoutePlanner::runStep(WorldPoint current_pos_m, nav2_costmap_2
         int offset_to_collision = 8;
         int collision_idx_offseted = std::max(collision_idx - offset_to_collision, 0);
         GridPoint start_point = reference_path_pixels[collision_idx_offseted];
-        GridPoint early_stop_point = extension_path_pixels_1.back();// reference_path_pixels[first_valid_idx + 5];
+        GridPoint early_stop_point = extension_path_pixels_1.back(); // reference_path_pixels[first_valid_idx + 5];
         GridPoint merge_back_point = extension_path_pixels_2.back();
 
         RCLCPP_INFO(logger, "Before A star");
-        std::vector<GridPoint> path_pixels = runAstarStep(start_point, early_stop_point, merge_back_point, distanceToObjectPixels, 10);
+        std::vector<GridPoint> path_pixels = runAstarStep(start_point, early_stop_point, extension_path_pixels_2[extension_path_pixels_2.size() -2],  extension_path_pixels_2.back(), distanceToObjectPixels, 10);
         RCLCPP_INFO(logger, "After A star");
 
-        // extend end of ocllision avoindace path another few meters on original trajectory
-        // res_extension = extend_path_meters_into_future(reference_trajectory_m, reference_path_pixels, end_idx_extension, 1);
-        // std::vector<GridPoint> extension_path_pixels_3 = std::get<1>(res_extension);
-        // std::vector<GridPoint> pathCombined = concatenateVectors(path_pixels, extension_path_pixels_3);
 
         std::vector<Pose> start_trajectory = splitVector(reference_trajectory_m, 0, collision_idx_offseted - 1);
         std::vector<Pose> trajectory_a_star = pathPixelsToTrajectoryMeters(path_pixels, costmap);
@@ -275,11 +272,6 @@ std::vector<Pose> RoutePlanner::runStep(WorldPoint current_pos_m, nav2_costmap_2
         // set to Collision avoidance
         isAvoidingCollision = true;
         collision_avoidance_trajectory_m = trajectory_combined;
-
-        
-
-        trajectory_combined= concatenateVectors(trajectory_combined, trajectory_a_star);
-
 
         return collision_avoidance_trajectory_m;
 
@@ -377,12 +369,13 @@ std::vector<Pose> RoutePlanner::runStep(WorldPoint current_pos_m, nav2_costmap_2
             end_point = std::get<1>(res_extension).back();
         }
 
-        std::vector<GridPoint> path_pixels = runAstarStep(start_point, end_point, end_point, distanceToObjectPixels, 10);
+        // TODO
+        // std::vector<GridPoint> path_pixels = runAstarStep(start_point, end_point, end_point, distanceToObjectPixels, 10);
 
-        std::vector<Pose> start_trajectory = splitVector(collision_avoidance_trajectory_m, 0, collision_idx_offseted - 1);
-        std::vector<Pose> trajectory_a_star = pathPixelsToTrajectoryMeters(path_pixels, costmap);
-        std::vector<Pose> trajectory_combined = concatenateVectors(start_trajectory, trajectory_a_star);
-        collision_avoidance_trajectory_m = trajectory_combined;
+        // std::vector<Pose> start_trajectory = splitVector(collision_avoidance_trajectory_m, 0, collision_idx_offseted - 1);
+        // std::vector<Pose> trajectory_a_star = pathPixelsToTrajectoryMeters(path_pixels, costmap);
+        // std::vector<Pose> trajectory_combined = concatenateVectors(start_trajectory, trajectory_a_star);
+        // collision_avoidance_trajectory_m = trajectory_combined;
 
         return collision_avoidance_trajectory_m;
     }
@@ -454,17 +447,8 @@ std::vector<GridPoint> runAstarSubStep(MapSearchNode start, MapSearchNode end, r
     }
 }
 
-std::vector<GridPoint> RoutePlanner::runAstarStep(GridPoint start, GridPoint early_end, GridPoint merge_back_end, Grid<double> &distanceToObjectPixels, unsigned char sampling_distance)
+std::vector<GridPoint> RoutePlanner::runAstarStep(GridPoint start, GridPoint early_end, GridPoint merge_back_end_1, GridPoint merge_back_end_2, Grid<double> &distanceToObjectPixels, unsigned char sampling_distance)
 {
-
-    if (distanceToObjectPixels.get_value(start.x, start.y) < marginPixels)
-    {
-        throw std::runtime_error("A star invalid start point");
-    }
-    if (distanceToObjectPixels.get_value(merge_back_end.x, merge_back_end.y) < marginPixels)
-    {
-        throw std::runtime_error("A star invalid end point");
-    }
 
     // Step 1 do a broad seach until end
     RCLCPP_INFO(logger, "A Star 1");
@@ -473,33 +457,44 @@ std::vector<GridPoint> RoutePlanner::runAstarStep(GridPoint start, GridPoint ear
 
     std::vector<GridPoint> early_path = runAstarSubStep(nodeStart, nodeEnd, logger);
 
+    if (sampling_distance != 1)
+    {
+        std::vector<GridPoint> path_sampled;
+        path_sampled.reserve(early_path.size() / sampling_distance + 1);
+        for (size_t i = 0; i < early_path.size(); i += sampling_distance)
+        {
+            path_sampled.push_back(early_path[i]);
+        }
+
+        // last element should alway be part of path
+        if (path_sampled.back() != early_path.back())
+        {
+            path_sampled.push_back(early_path.back());
+        }
+        early_path = path_sampled;
+    }
+
     // Step2 do fine seach until merge back point
-    RCLCPP_INFO(logger, "A Star 2");
-    nodeStart = MapSearchNode(early_path.back().x, early_path.back().y, distanceToObjectPixels.size_x, distanceToObjectPixels.size_y, distanceToObjectPixels.getGrid(), marginPixels, true);
-    nodeEnd = MapSearchNode(merge_back_end.x, merge_back_end.y, distanceToObjectPixels.size_x, distanceToObjectPixels.size_y, distanceToObjectPixels.getGrid(), marginPixels, true);
+    RCLCPP_INFO(logger, "Smooth rest");
 
-    std::vector<GridPoint> laterPath = runAstarSubStep(nodeStart, nodeEnd, logger);
+    GridPoint point1 = early_path[early_path.size() - 2];
+    GridPoint point2 = early_path.back();
+    GridPoint point3 = merge_back_end_1;
+    GridPoint point4 = merge_back_end_2;
 
-    std::vector<GridPoint> completePath = concatenateVectors(early_path, laterPath);
-
-    if (sampling_distance == 1)
+    std::vector<GridPoint> smoothEnd;
+    Bezier::Bezier<3> cubicBezier({{point1.x, point1.y}, {point2.x, point2.y}, {point3.x, point3.y}, {point4.x, point4.y}});
+    for (double i = 0; i < 1; i += 0.1)
     {
-        return completePath;
+        Bezier::Point p = cubicBezier.valueAt(i);
+        smoothEnd.push_back(GridPoint((int)p.x, (int)p.y));
+        RCLCPP_INFO(logger, "Bezier at %f, %f", p.x, p.y);
     }
 
-    std::vector<GridPoint> path_sampled;
-    path_sampled.reserve(completePath.size() / sampling_distance + 1);
-    for (size_t i = 0; i < completePath.size(); i += sampling_distance)
-    {
-        path_sampled.push_back(completePath[i]);
-    }
+    std::vector<GridPoint> pathPixelsSplit = splitVector(early_path, 0, early_path.size() - 2);
+    std::vector<GridPoint> pathCombined = concatenateVectors(pathPixelsSplit, smoothEnd);
 
-    // last element should alway be part of path
-    if (path_sampled.back() != completePath.back())
-    {
-        path_sampled.push_back(completePath.back());
-    }
-    return path_sampled;
+    return pathCombined;
 }
 
 std::vector<Pose> RoutePlanner::pathPixelsToTrajectoryMeters(std::vector<GridPoint> &path, nav2_costmap_2d::Costmap2D &costmap)
