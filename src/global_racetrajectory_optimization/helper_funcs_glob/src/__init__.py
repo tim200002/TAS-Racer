@@ -7,4 +7,5 @@ import helper_funcs_glob.src.import_track
 import helper_funcs_glob.src.result_plots
 import helper_funcs_glob.src.prep_track
 import helper_funcs_glob.src.get_track_boundaries
+import helper_funcs_glob.src.a_star
 

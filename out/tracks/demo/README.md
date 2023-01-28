@@ -1,0 +1,1 @@
+This folder is used for demnostration. It only contains the track information, from there on follow the steps as explained to generate all different kinds of trajectories.

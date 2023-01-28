@@ -62,6 +62,7 @@ def prep_track(reftrack_imp: np.ndarray,
         bound_1_tmp = reftrack_interp[:, :2] + normvec_normalized_interp * np.expand_dims(reftrack_interp[:, 2], axis=1)
         bound_2_tmp = reftrack_interp[:, :2] - normvec_normalized_interp * np.expand_dims(reftrack_interp[:, 3], axis=1)
 
+
         plt.figure()
 
         plt.plot(reftrack_interp[:, 0], reftrack_interp[:, 1], 'k-')

@@ -31,7 +31,7 @@ def generate_launch_description():
     gazebo_world_path = os.path.join(pkg_share, gazebo_world_file_path)
     gazebo_models_path = os.path.join(pkg_share, gazebo_models_path)
     os.environ["GAZEBO_MODEL_PATH"] = gazebo_models_path
-    urdf_file_path = os.path.join(pkg_share, 'models/urdf/turtlebot.urdf')
+    urdf_file_path = os.path.join(pkg_share, 'models/urdf/tas_car.urdf')
 
     # Launch configuration variables specific to simulation
     headless = LaunchConfiguration('headless')
@@ -70,8 +70,6 @@ def generate_launch_description():
         default_value='True',
         description='Whether to start the robot state publisher')
 
-    
-    
     start_gazebo_server_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(os.path.join(
             pkg_gazebo_ros, 'launch', 'gzserver.launch.py')),
@@ -137,5 +135,5 @@ def generate_launch_description():
     ld.add_action(start_gazebo_server_cmd)
     ld.add_action(start_gazebo_client_cmd)
     ld.add_action(start_rviz_cmd)
-    
+
     return ld

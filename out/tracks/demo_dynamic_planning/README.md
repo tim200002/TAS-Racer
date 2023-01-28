@@ -1,0 +1,1 @@
+Demo for showing of adaptie replanner. It already contains a trajectory. We use this trajectory because it is close to the objects so it doesn't take that long to reach them.
