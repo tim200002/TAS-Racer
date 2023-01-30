@@ -80,7 +80,7 @@ Prerequisites:
 - All packages built using colcon
 - Current Workspace sourced
 - Installed all python packages as stated in `requirements.txt`
-- in base (not virtunalenv) python distribution also install  `pip3 install transforms3d`
+- in base (not virtunalenv) python distribution also install  `pip3 install transforms3d`. (Note unfortunately it is not possible to install it via Colcon see [here](https://index.ros.org/p/tf_transformations/) for more information.)
 - For the online planner, a working installation of opencv (see https://docs.opencv.org/4.x/d2/de6/tutorial_py_setup_in_ubuntu.html)
 
 ## Test out path generation
