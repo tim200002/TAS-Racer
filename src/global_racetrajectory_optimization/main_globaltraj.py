@@ -38,7 +38,7 @@ plot_opts = {"mincurv_curv_lin": False,         # plot curv. linearization (orig
              "mintime_plots": False}            # plot states, controls, friction coeffs etc. (mintime only)
 
 
-file_paths["track_name"] = "demo"      
+file_paths["track_name"] = "track_2"      
 
 # set import options ---------------------------------------------------------------------------------------------------
 imp_opts = {"flip_imp_track": False,                # flip imported track to reverse direction
@@ -53,7 +53,8 @@ imp_opts = {"flip_imp_track": False,                # flip imported track to rev
 # 'mincurv'             minimum curvature optimization without iterative call
 
 opt_type = 'mincurv'
-opt_type = 'shortest_path'
+#opt_type = 'shortest_path'
+opt_type = 'interp'
 
 # set mintime specific options (mintime only) --------------------------------------------------------------------------
 # tpadata:                      set individual friction map data file if desired (e.g. for varmue maps), else set None,
@@ -82,7 +83,7 @@ lap_time_mat_opts = {"use_lap_time_mat": False,             # calculate a lap ti
 # CHECK USER INPUT -----------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
 
-if opt_type not in ["shortest_path", "mincurv", "mincurv_iqp", "mintime"]:
+if opt_type not in ["shortest_path", "mincurv", "interp", "mincurv_iqp", "mintime"]:
     raise IOError("Unknown optimization type!")
 
 if opt_type == "mintime" and not mintime_opts["recalc_vel_profile_by_tph"] and lap_time_mat_opts["use_lap_time_mat"]:
@@ -146,6 +147,9 @@ if opt_type == 'shortest_path':
 
 elif opt_type in ['mincurv', 'mincurv_iqp']:
     pars["optim_opts"] = json.loads(parser.get('OPTIMIZATION_OPTIONS', 'optim_opts_mincurv'))
+
+elif opt_type in ['interp']:
+    pars["optim_opts"] = json.loads(parser.get('OPTIMIZATION_OPTIONS', 'optim_opts_interp'))
 
 
 # set import path for ggv diagram and ax_max_machines (if required)
@@ -221,6 +225,15 @@ if opt_type == 'mincurv':
                                               w_veh=pars["optim_opts"]["width_opt"],
                                               print_debug=debug,
                                               plot_debug=plot_opts["mincurv_curv_lin"])[0]
+elif opt_type == 'interp':
+    alpha_opt = tph.opt_interp.opt_interp(reftrack=reftrack_interp,
+                                            normvectors=normvec_normalized_interp,
+                                            alpha= pars["optim_opts"]["alpha"],
+                                            A=a_interp,
+                                            kappa_bound=pars["veh_params"]["curvlim"],
+                                            w_veh=pars["optim_opts"]["width_opt"],
+                                            print_debug=debug,
+                                            plot_debug=plot_opts["mincurv_curv_lin"])[0]
 
 # elif opt_type == 'mincurv_iqp':
 #     alpha_opt, reftrack_interp, normvec_normalized_interp = tph.iqp_handler.\
@@ -240,6 +253,7 @@ elif opt_type == 'shortest_path':
                                                         normvectors=normvec_normalized_interp,
                                                         w_veh=pars["optim_opts"]["width_opt"],
                                                         print_debug=debug)
+
 
 else:
     raise ValueError('Unknown optimization type!')
