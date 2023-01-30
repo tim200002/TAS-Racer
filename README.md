@@ -43,7 +43,7 @@ Adaptions have been made to:
  ... is the directory where one can find the generated trajectories, maps, and worlds. The name `out` is maybe a bit confusing since it is also the directory where one inserts the image of the track first, form which the rest is then generated.
 
  # How to run
-**A more specific tutorial for the demos is provided later**
+**A more detailed tutorial for the demos is provided later**
 
  Step 1: Generate a black white image of the racetrack and save it under the name `track.jpeg` in `out/some_folder_name`.
  Step 2: From inside `global_racetrajectory_optimization` run first: `generate_gazebo_world.py` and then `extract_centerline.py`. Both scripts have a command line parser where one must provide the path to the `track.jpeg` file.
