@@ -71,6 +71,9 @@ The current version of the online planner is completely implemented in `c++`. Or
 
 The issue was that when `nav-2` calls the path-finder this call is already done in a callback way in its own process. Then the planner would again call the python service which would open a second callback in the first callback which always led to the nodes to crash. I spent multiple days trying to fix this issue, for example by providing extra context to the callbacks. The issue was just that there was not a lot of literature to find, especially since these kinds of problems were not a problem with `ROS-1`. Ultimately I had to give up and resort to writing everything in C++.
 
+## Notebooks
+There is also an extra folder `notebooks`. This folder is not really part of my submission. Instead, it has two notebooks concerning the preprocessing steps. The one shows the new preprocessing steps based on image processing, while the other one shows the first version which was based on simple python. It might be interesting to have a look at it to see how both work and why I decided to completely reimplement everything halfway through the project.
+
 # Demo
 
 Prerequisites:

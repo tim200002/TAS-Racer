@@ -57,6 +57,7 @@ def main():
     markers, _ = ndimage.label(mask)
     labels = watershed(distances, markers)
 
+
     # now use contour to extract centerline as path
     center_line = measure.find_contours(labels, 1)
     assert len(center_line) == 1
