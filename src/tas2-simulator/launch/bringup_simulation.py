@@ -23,7 +23,7 @@ def generate_launch_description():
    # Constants for paths to different files and folders
     package_name = 'tas2-simulator'
     gazebo_models_path = 'models/gazeboModels'
-    gazebo_world_file_path = 'models/worlds/gazebo_world.world'
+    gazebo_world_file_path = 'models/worlds/world_track1_no_obstacles.world'
     pkg_gazebo_ros = FindPackageShare(package='gazebo_ros').find('gazebo_ros')
     pkg_share = FindPackageShare(package=package_name).find(package_name)
     rviz_config_file_path = os.path.join(
@@ -129,7 +129,6 @@ def generate_launch_description():
     ld.add_action(declare_world_cmd)
 
     # launch the nodes
-    # ld.add_action(start_gazebo_cmd)
     ld.add_action(start_localizer)
     ld.add_action(start_robot_state_publisher_cmd)
     ld.add_action(start_gazebo_server_cmd)

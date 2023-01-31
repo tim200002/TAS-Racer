@@ -136,38 +136,54 @@ def _validate_vector(u, dtype=None):
 Since of course this might lead to unexpected behavior, I recommend doing it only in a virtual environment
 
 
-If you want to test trajectories generated like this, it might be necessary to shorten the trajectory by a few points such that goal and start are not too close to one another.
+**Important**: If you want to test trajectories generated like this, it is necessary to shorten the trajectory by a few points (5 should be enough) such that goal and start are not too close to one another.
 
 ## Test out ros package
 
-**Test out offline planner**:
-Preparation:
-1. In `src/tas2-simulator/config/navigation.yaml` outcomment lines for the `offline_planner` and set `trajectory_file` to an absolute path to one of the previously generated trajectories
-2. In `src/tas2-simulator/maps` there are already map files for the trajectories generated in the previous step. For the offline planner, take the map called `map_track_1_no_obstacles.pgm` and rename it to `map.pgm`
-3. In `src/tas2-simulator/models/worlds` there are already world files for the trajectories generated in the previous step. For the offline planner, take the world called `gazebo_world_track_1_no_obstacles.world` and rename it to `gazebo_world.world`
+**Note** Typically it would be required to move the map and world files generarted in the previous step into the corresponding `maps` and `worlds` folder in the `tas2-simulator`. I already did this for you. The only thing you have to do is to update all absolute paths such that they correspond to your file system.
 
-Run Simulation
-1. From the first terminal run `ros2 launch tas2-simulator bringup_simulation.py`
-2. From a second terminal run `ros2 launch tas2-simulator bringup_navstack.py`
-3. From a third terminal to start the simulation
-    1. cd `src/play_simulation`
-    2. run `python play_simulation.py`
+### Offline Planner:
+
+Before evrything start the simulation by `ros2 launch tas2-simulator bringup_simulation.py world:=/home/tim/tas2-racer/src/tas2-simulator/models/worlds/world_track1_no_obstacles.world`
 
 
-**Test out online planner**:
-Preparation:
-1. In `src/tas2-simulator/config/navigation.yaml` outcomment lines for the `online_planner` and set `trajectory_file` to an absolute path to one of the previously generated trajectories
-2. In `src/tas2-simulator/maps` there are already map files for the trajectories generated in the previous step. For the offline planner, take the map called `map_track1_obstacles.pgm` and rename it to `map.pgm`
-3. In `src/tas2-simulator/models/worlds` there are already world files for the trajectories generated in the previous step. For the offline planner, take the world called `gazebo_world_track1_obstacles.world` and rename it to `gazebo_world.world`
+Now you can start the different planning modes by following:
 
-Run Simulation
-1. From the first terminal run `ros2 launch tas2-simulator bringup_simulation.py`
-2. From a second terminal run `ros2 launch tas2-simulator bringup_navstack.py`
-3. From a third terminal to start the simulation
-    1. cd `src/play_simulation`
-    2. run `python play_simulation.py`
+1. Offline Planner, using A*
+    1. in `navigation.yaml` make sure the lines for the offline planner are commented out and set the path of `trajectory_file` to point to the right trajectory (absolute path)
+    2. Start `navstack` by running `ros2 launch tas2-simulator bringup_navstack.py map:=/home/tim/tas2-racer/src/tas2-simulator/maps/map_track1_no_obstacles.yaml`
+    3. Start simulation by running (from inside `src/play_simulation`) `python3 play_simulation.py -t ../../out/tracks/demo/trajectory_astar.csv`
+
+2. Offline Planner, using shortest path (optimization)
+    1. in `navigation.yaml` make sure the lines for the offline planner are commented out and set the path of `trajectory_file` to point to the right trajectory (absolute path)
+    2. Start `navstack` by running `ros2 launch tas2-simulator bringup_navstack.py map:=/home/tim/tas2-racer/src/tas2-simulator/maps/map_track1_no_obstacles.yaml`
+    3. Start simulation by running (from inside `src/play_simulation`) `python3 play_simulation.py -t ../../out/tracks/demo/trajectory_shortest_path.csv`
+
+3. Offline Planner, using Minimum Curvature
+    1. in `navigation.yaml` make sure the lines for the offline planner are commented out and set the path of the `trajectory_file` to point to the right trajectory (absolute path)
+    2. Start `navstack` by running `ros2 launch tas2-simulator bringup_navstack.py map:=/home/tim/tas2-racer/src/tas2-simulator/maps/map_track1_no_obstacles.yaml`
+    3. Start simulation by running (from inside `src/play_simulation`) `python3 play_simulation.py -t ../../out/tracks/demo/trajectory_mincurv.csv`
+
+3. Offline Planner, using Interpolated Approach
+    1. in `navigation.yaml` make sure the lines for the offline planner are commented out and set the path of the `trajectory_file` to point to the right trajectory (absolute path)
+    2. Start `navstack` by running `ros2 launch tas2-simulator bringup_navstack.py map:=/home/tim/tas2-racer/src/tas2-simulator/maps/map_track1_no_obstacles.yaml`
+    3. Start simulation by running (from inside `src/play_simulation`) `python3 play_simulation.py -t ../../out/tracks/demo/trajectory_interp.csv`
+
+### Online Planner
+
+Before evrything start the simulation by `ros2 launch tas2-simulator bringup_simulation.py world:=/home/tim/tas2-racer/src/tas2-simulator/models/worlds/world_track1_obstacles.world`
+
+I prepared a shoorter trajectory to demonstrate the onine planner, it can be found under `out/tracks/demo_dynamic_planning`using this file you can start the simulation via
+
+1. in `navigation.yaml` make sure the lines for the online planner are commented out and set the path of `trajectory_file` to point to the right trajectory, i.e. make it point to the absolute path of `out/tracks/demo_dynamic_planning`
+2. Start `navstack` by running `ros2 launch tas2-simulator bringup_navstack.py map:=/home/tim/tas2-racer/src/tas2-simulator/maps/map_track1_obstacles.yaml`
+3. Start simulation by running (from inside `src/play_simulation`) `python3 play_simulation.py -t ../../out/tracks/demo_dynamic_planning/trajectory_mincurv.csv`
 
 ## Test out dynamic replanning simulation
 Since the dynamic replanning does not perfectly work in ROS (as explained in my presentation), I made a simulation to show how it works in theory. From inside `src/global_racetrajectory_optimization`, run `python adaptive_replanning.py`.
 
 A map will be rendered. Using the keyboard you can either move along the trajectory by typing `Enter` into the terminal, you can also spawn a new object right below the current one by typing `s` followed by `Enter`. Please play around with different times of spawning the object and see how the path planning behaves
+
+
+# Contributions
+All the code was written by msyself Tim Lindenau. We started as a group of three but both others have not done anything and then midways through left the group. The have, however, not contributed anythin to the codebase so that it is all my individual work.

@@ -29,11 +29,17 @@ def generate_launch_description():
 
   # Launch configuration variables specific to simulation
   use_sim_time = LaunchConfiguration('use_sim_time')
+  map = LaunchConfiguration('map')
 
   declare_use_sim_time_cmd = DeclareLaunchArgument(
     name='use_sim_time',
     default_value='True',
     description='Use simulation (Gazebo) clock if true')
+
+  declare_map_cmd = DeclareLaunchArgument(
+        name='map',
+        default_value=map_config_file_path,
+        description='Full path to the map.yaml file to load')
 
 
   # robot localization via EKF
@@ -51,7 +57,7 @@ def generate_launch_description():
       launch_arguments={
         'use_sim_time': use_sim_time,
         'params_file': nav2_config_file_path,
-        'map': map_config_file_path,
+        'map': map,
         'rviz_config_file': rviz_config_file_path
       }.items())
 
@@ -61,6 +67,7 @@ def generate_launch_description():
 
   # Declare the launch options
   ld.add_action(declare_use_sim_time_cmd)
+  ld.add_action(declare_map_cmd)
 
 
     # launch the nodes

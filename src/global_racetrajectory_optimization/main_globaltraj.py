@@ -38,7 +38,7 @@ plot_opts = {"mincurv_curv_lin": False,         # plot curv. linearization (orig
              "mintime_plots": False}            # plot states, controls, friction coeffs etc. (mintime only)
 
 
-file_paths["track_name"] = "track_2"      
+file_paths["track_name"] = "demo"      
 
 # set import options ---------------------------------------------------------------------------------------------------
 imp_opts = {"flip_imp_track": False,                # flip imported track to reverse direction
@@ -54,7 +54,7 @@ imp_opts = {"flip_imp_track": False,                # flip imported track to rev
 
 opt_type = 'mincurv'
 #opt_type = 'shortest_path'
-opt_type = 'interp'
+#opt_type = 'interp'
 
 # set mintime specific options (mintime only) --------------------------------------------------------------------------
 # tpadata:                      set individual friction map data file if desired (e.g. for varmue maps), else set None,
