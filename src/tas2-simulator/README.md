@@ -1,12 +1,10 @@
 # TAS2 simulator
 
-
-
-## Adaptions made by me (Tim Lindenau)
+## Adaptations made by me (Tim Lindenau)
 1) The launch files. There are now two new files: `bringup_simulation` to launch GAzebo and RVIZ, `bringup_navstack` to start nav2
 2) The configuration files for `nav-2`
 3) The folder containing maps and gazebo files to use our own files
-4) The TAS car. The tas-car had one major implementation issue which has led to the reference joint used by gazebo for localization to always stay fixed in `x` and `y` but to fall in `z`. It took me a very long time to realize what was up and that this issue was due to the `car` and not my own generated worlds. Unfortunately I need the location for two files `play simulation` and `localization`. Thus, I spent a long time debugging the car and finally fixed the issue by adding a forgotten link between base footprint and base.
+4) The TAS car. The car had one major implementation issue which has led to the reference joint used by gazebo for localization to always stay fixed in `x` and `y` but to fall in `z`. It took me a very long time to realize what was up and that this issue was due to the `car` and not my own generated worlds. Unfortunately I need the location for two use cases `play simulation` and `localization`. Thus, I spent a long time debugging the car and finally fixed the issue by adding a forgotten link between base footprint and base.
 ## Installation Guide
 The TAS2 simulator is designed using ROS2 and tested for Ubuntu 22.04.
 
