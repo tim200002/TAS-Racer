@@ -1,6 +1,6 @@
 # TAS Racer
 
-This project was part of the Autonomous Systems course at the Technical University of Munich. The goal was to improve the racing stack of an autonomous car in ROS-2 by contributing one key feature. I focused on generating a fast trajectory by combining the shortest distance and minimum curvature. This contribution helped me earn the top grade of A* for the project. The final presentation is available [here](./Presentation.pptx).
+This project was part of the Autonomous Systems course at the Technical University of Munich. The goal was to improve the racing stack of an autonomous car in ROS-2 by contributing one key feature. I focused on generating a fast trajectory by combining the shortest distance and minimum curvature. This contribution helped me earn the top grade of A* for the project. The final presentation is available [here](./Presentation_final.pdf).
 
 Within the work, I implemented and evaluated 4 different types of path planners:
 
