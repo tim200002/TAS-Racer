@@ -1,6 +1,8 @@
-# Project Idea
+# TAS Racer
 
-The idea was the implementation of multiple path planners targeted towards racing. More exactly four different types of planners have been implemented
+This project was part of the Autonomous Systems course at the Technical University of Munich. The goal was to improve the racing stack of an autonomous car in ROS-2 by contributing one key feature. I focused on generating a fast trajectory by combining the shortest distance and minimum curvature. This contribution helped me earn the top grade of A* for the project. The final presentation is available [here](./Presentation.pptx).
+
+Within the work, I implemented and evaluated 4 different types of path planners:
 
 - Shortest Path using A-Star
 - Shortest Path by solving an optimization problem
